@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    {% include 'templates/header.html' %}
+    <h4>View All Streams</h4>
+    {% for stream in streams %}
+        <br>{{stream.name}}
+        <ul id="emaillist">
+        {% for email in stream.subscribers %}
+            <li>{{email}}</li>
+        {% endfor %}
+        </ul>
+    {% endfor %}
+</body>
+</html>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+    <!--{% include 'templates/header.html' %}-->
+    <h2>Welcome to Connexus!</h2>
+    <br>Share the world!</br>
+    <br>{{greeting}}</br>
+    <a href="{{ url|safe }}">{{ url_linktext }}</a>
+
+</body>
+</html>
+{% endautoescape %}
