@@ -8,11 +8,23 @@
     {% include 'templates/header.html' %}
     <h4>View All Streams</h4>
     {% for stream in streams %}
+        <img src="{{stream.cover_url|safe}}" style="width:128px;height:128px;">
         <br>{{stream.name}}
-        <ul id="emaillist">
-        {% for email in stream.subscribers %}
-            <li>{{email}}</li>
-        {% endfor %}
+        <ul id="categories">
+            <li>subscribers
+                <ul id="emaillist">
+                {% for email in stream.subscribers %}
+                    <li>{{email}}</li>
+                {% endfor %}
+                </ul>
+            </li>
+            <li>tags
+                <ul id="taglist">
+                {% for tag in stream.tags %}
+                    <li>{{tag}}</li>
+                {% endfor %}
+                </ul>
+            </li>
         </ul>
     {% endfor %}
 </body>

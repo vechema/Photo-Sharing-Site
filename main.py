@@ -7,6 +7,7 @@ import datetime
 from google.appengine.api import users
 from google.appengine.ext import ndb
 from google.appengine.ext import blobstore
+from google.appengine.api import mail
 from google.appengine.api.images import get_serving_url
 
 
@@ -19,11 +20,17 @@ class Stream(ndb.Model):
     name = ndb.StringProperty()
     creation_date = ndb.DateTimeProperty(auto_now_add=True)
     subscribers = ndb.StringProperty(repeated=True)
+    tags = ndb.StringProperty(repeated=True)
+    cover_url = ndb.StringProperty()
 
 class ErrorHandler(webapp2.RequestHandler):
     def get(self):
         error_code = self.request.get('message')
-        
+        if error_code == "streamnamedup":
+            message = "You tried to create a stream whose name is the same as " \
+                      "an existing stream; operation did not complete"
+        elif error_code == "streamnamelen":
+            message = "You tried to create a stream without a name"
         template_values ={
             'message' : message
         }
@@ -54,17 +61,49 @@ class CreateHandler(webapp2.RequestHandler):
             self.response.write(template.render(template_values))
 
     def post(self):
+        #Get the name of the stream
         stream_name = self.request.get('streamname')
+        if len(stream_name) == 0:
+            self.redirect('/error?message=streamnamelen')
+            return
         #Need to see if a stream with that name already exists
-        stream_query = Stream.query()#Stream.name == stream_name)
+        stream_query = Stream.query(Stream.name == stream_name)
         streams = stream_query.fetch(400)
-        if not streams:
-            emails = self.request.get('subscribers').split(",")
-            stream = Stream(name=stream_name, subscribers=emails)
-            stream.put()
-            self.redirect('/manage')
-        else:
-            self.redirect('/error?message=streamname')
+        if streams:
+            self.redirect('/error?message=streamnamedup')
+            return
+        #get the emails and then send 'em
+        emails = self.request.get('subscribers').split(",")
+        email_message = self.request.get('message')
+        #Need to change this to the actual url of the stream
+        stream_url = "http://apt2015mini.appspot.com/viewall"
+        sendSubscriptionEmails(emails, email_message, stream_url)
+
+        #tags
+        tag_list = self.request.get('tags').replace('#', '').split(" ")
+
+        #cover image
+        cover = self.request.get('coverurl')
+        if(len(cover) == 0):
+            cover = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/300px-No_image_available.svg.png"
+
+        #Put it all together in a stream object
+        stream = Stream(name=stream_name, subscribers=emails, tags=tag_list, cover_url=cover)
+        stream.put()
+        self.redirect('/manage')
+
+def sendSubscriptionEmails(emails, note, stream_url):
+    for email in emails:
+        if len(email) > 0:
+            message = mail.EmailMessage(sender="Jo Egner <vechema@gmail.com>",
+                                    subject="You were subscribed")
+
+            message.to = email
+            message.body = note + """
+
+            This message was sent by """ + stream_url
+
+            message.send()
 
 class ManageHandler(webapp2.RequestHandler):
     def get(self):
