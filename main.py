@@ -16,12 +16,20 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
 
+class Picture(ndb.Model):
+    name = ndb.StringProperty()
+    comments = ndb.StringProperty()
+    upload_date = ndb.DateTimeProperty(auto_now_add=True)
+
 class Stream(ndb.Model):
     name = ndb.StringProperty()
     creation_date = ndb.DateTimeProperty(auto_now_add=True)
     subscribers = ndb.StringProperty(repeated=True)
     tags = ndb.StringProperty(repeated=True)
     cover_url = ndb.StringProperty()
+    num_pics = ndb.IntegerProperty()
+    photos = ndb.StructuredProperty(Picture, repeated=True)
+
 
 class ErrorHandler(webapp2.RequestHandler):
     def get(self):
@@ -31,6 +39,7 @@ class ErrorHandler(webapp2.RequestHandler):
                       "an existing stream; operation did not complete"
         elif error_code == "streamnamelen":
             message = "You tried to create a stream without a name"
+
         template_values ={
             'message' : message
         }
@@ -54,11 +63,11 @@ class CreateHandler(webapp2.RequestHandler):
         user = users.get_current_user()
         if not user:
             self.redirect(users.create_login_url(self.request.uri))
-        else:
-            template_values ={
-            }
-            template = JINJA_ENVIRONMENT.get_template('templates/create.html')
-            self.response.write(template.render(template_values))
+            return
+        template_values ={
+        }
+        template = JINJA_ENVIRONMENT.get_template('templates/create.html')
+        self.response.write(template.render(template_values))
 
     def post(self):
         #Get the name of the stream
@@ -72,11 +81,12 @@ class CreateHandler(webapp2.RequestHandler):
         if streams:
             self.redirect('/error?message=streamnamedup')
             return
+
         #get the emails and then send 'em
         emails = self.request.get('subscribers').split(",")
         email_message = self.request.get('message')
         #Need to change this to the actual url of the stream
-        stream_url = "http://apt2015mini.appspot.com/viewall"
+        stream_url = "http://apt2015mini.appspot.com/view?stream=" + urllib.quote_plus(stream_name)
         sendSubscriptionEmails(emails, email_message, stream_url)
 
         #tags
@@ -90,12 +100,14 @@ class CreateHandler(webapp2.RequestHandler):
         #Put it all together in a stream object
         stream = Stream(name=stream_name, subscribers=emails, tags=tag_list, cover_url=cover)
         stream.put()
+
         self.redirect('/manage')
 
 def sendSubscriptionEmails(emails, note, stream_url):
+    user = users.get_current_user()
     for email in emails:
         if len(email) > 0:
-            message = mail.EmailMessage(sender="Jo Egner <vechema@gmail.com>",
+            message = mail.EmailMessage(sender=user.email(),
                                     subject="You were subscribed")
 
             message.to = email
@@ -110,13 +122,13 @@ class ManageHandler(webapp2.RequestHandler):
         user = users.get_current_user()
         if not user:
             self.redirect(users.create_login_url(self.request.uri))
-        else:
-            name = user.nickname()
-            template_values ={
-                'name' : name,
-            }
-            template = JINJA_ENVIRONMENT.get_template('templates/manage.html')
-            self.response.write(template.render(template_values))
+            return
+        name = user.nickname()
+        template_values ={
+            'name' : name,
+        }
+        template = JINJA_ENVIRONMENT.get_template('templates/manage.html')
+        self.response.write(template.render(template_values))
 
 class MainPage(webapp2.RequestHandler):
     def get(self):
@@ -125,12 +137,12 @@ class MainPage(webapp2.RequestHandler):
 class LoginHandler(webapp2.RequestHandler):
     def get(self):
         user = users.get_current_user()
-        name = "stranger"
         if user:
             name = user.nickname()
             url = users.create_logout_url('/login')
             url_linktext = "Logout"
         else:
+            name = "stranger"
             url = users.create_login_url('/')
             url_linktext = "Login"
 
