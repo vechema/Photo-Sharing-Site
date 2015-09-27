@@ -30,7 +30,6 @@ class Stream(ndb.Model):
     subscribers = ndb.StringProperty(repeated=True)
     tags = ndb.StringProperty(repeated=True)
     cover_url = ndb.StringProperty()
-    num_pics = ndb.IntegerProperty()
     photos = ndb.StructuredProperty(Picture, repeated=True)
     view_count = ndb.IntegerProperty()
 
@@ -81,8 +80,11 @@ class ViewAHandler(webapp2.RequestHandler):
 
         photo_url_list = []
         pics = stream.photos
+        limit = len(pics)
+        if limit > 3:
+            limit = 3
 
-        for i in range(0,3):
+        for i in range(0,limit):
             photo_url_list.append(get_serving_url(pics[i].blob_key))
 
         template_values = {
@@ -100,9 +102,14 @@ class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
             #Get the blob_key
             upload = self.get_uploads()[0]
 
-            #Get name & comments
-            photo_name = self.request.get('filename')
+            #Get stream, name & comments
+            photo_name = self.request.get('file_name')
             photo_comment = self.request.get('comment')
+
+            # name = self.request.get('stream')
+            # stream_query = Stream.query(Stream.name == stream_name)
+            # streams = stream_query.fetch()
+            # stream = streams[0]
 
             user_photo = Picture(blob_key=upload.key(), name=photo_name, comments=photo_comment)
             user_photo.put()
@@ -157,7 +164,6 @@ class CreateHandler(webapp2.RequestHandler):
         stream.subscribers=emails
         stream.tags=tag_list
         stream.cover_url=cover
-        stream.num_pics=0
 
         stream.put()
 
