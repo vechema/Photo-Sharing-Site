@@ -27,6 +27,13 @@
                 {% endfor %}
                 </ul>
             </li>
+            <li>photos
+                <ul id="photolist">
+                {% for photo in stream.photos %}
+                    <li>{{photo.name}}</li>
+                {% endfor %}
+                </ul>
+            </li>
         </ul>
     {% endfor %}
 </body>
