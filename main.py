@@ -132,8 +132,9 @@ class ViewAHandler(webapp2.RequestHandler):
         }
         template = JINJA_ENVIRONMENT.get_template('templates/viewa.html')
         self.response.write(template.render(template_values))
-        for view in views:
-            self.response.write(str(view) + '<br>')
+        self.response.write(stream.count)
+        # for view in views:
+        #     self.response.write(str(view) + '<br>')
 
 
 class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
@@ -384,7 +385,7 @@ class TrendingHandler(webapp2.RequestHandler):
 
 
         #find the leaders and store them in the database
-        stream_query = Stream.query().order(Stream.count)
+        stream_query = Stream.query().order(-Stream.count)
         streams = stream_query.fetch(3)
         leads = Leaders(name = 'champions', leader1 = streams[0], leader2 = streams[1], leader3 = streams[2])
         leads.put()
