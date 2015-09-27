@@ -96,9 +96,10 @@ class ViewAHandler(webapp2.RequestHandler):
 
         photo_url_list = []
         pics = stream.photos
+        hard_limit = 3
         limit = len(pics)
-        if limit > 3:
-            limit = 3
+        if limit > hard_limit:
+            limit = hard_limit
 
         for i in range(0,limit):
             photo_url_list.append(get_serving_url(pics[i].blob_key))
@@ -111,7 +112,7 @@ class ViewAHandler(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('templates/viewa.html')
         self.response.write(template.render(template_values))
         for view in views:
-            self.response.write(view)
+            self.response.write(str(view) + '<br>')
 
 
 class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
@@ -132,11 +133,27 @@ class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
             # streams = stream_query.fetch()
             # stream = streams[0]
 
+
             user_photo = Picture(blob_key=upload.key(), name=photo_name, comment=photo_comment)
             img_url = get_serving_url(user_photo.blob_key)
             user_photo.pic_url = img_url
             user_photo.put()
-            self.redirect('/' + stream_name)
+
+            #Add the picture to it's stream
+            stream_query = Stream.query(Stream.name == stream_name)
+            streams = stream_query.fetch()
+            stream = streams[0]
+
+            list_pics = stream.photos
+            list_pics.insert(0, user_photo)
+            #list_pics.append(user_photo)
+            stream.photos = list_pics
+            #stream.photos.append(user_photo)
+            #stream.photos[0] = user_photo
+            stream.put()
+
+            self.redirect('/view?stream=' + stream_name)
+            #self.redirect('/')
         except:
             self.error(500)
 
@@ -146,16 +163,8 @@ class AllPhotosHandler(webapp2.RequestHandler):
 
         photo_query = Picture.query().order(-Picture.upload_date)
         photos = photo_query.fetch()
-        # i = 0
-        # pic_url_list = []
-        # for result in photos:
-        #     i = i + 1
-        #     photo_key = result.blob_key
-        #     img_url = get_serving_url(photo_key)
-        #     pic_url_list.append(img_url)
 
         template_values = {
-#            'pic_url_list' : pic_url_list,
             'photos' : photos,
         }
         template = JINJA_ENVIRONMENT.get_template('templates/allpics.html')
