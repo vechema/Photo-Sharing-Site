@@ -381,40 +381,16 @@ class TrendingHandler(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('templates/trends.html')
         self.response.write(template.render(template_values))
 
+        #check to see if leader information is available yet
+        
 
-        #find the leaders and store them in the database
-        stream_query = Stream.query().order(-Stream.count)
-        streams = stream_query.fetch(3)
-
-        i = 0
-
-        # for stream in streams:
-        #     self.response.write(stream.name)
-        #     self.response.write(streams[i].name)
-        #     self.response.write('<br>')
-        #     i = i+ 1
-
-        leads_stored = Leaders(name = 'champions',id = 'lkey')
-        for stream in streams:
-            leads_stored.champs.append(stream.name)
-        leaderkey = leads_stored.put()
-
-        # self.response.write(leaderkey)
 
         #GETS THE LEADERS FROM THE DATASTORE
-        # leads_query = Leaders.query(Leaders.name == 'champions')
-        # leadlist = leads_query.fetch()
-        # leads_retrieved = leadlist[0]
-
         thekey = ndb.Key(Leaders, 'lkey')
         leads_retrieved = thekey.get()
 
 
         # prints the leaders
-        # for champ in leads_stored.champs:
-        #     self.response.write(champ)
-
-
         self.response.write('<br>')
 
         for champr in leads_retrieved.champs:
@@ -423,11 +399,19 @@ class TrendingHandler(webapp2.RequestHandler):
 
 class UpdateHandler(webapp2.RequestHandler):
     def get(self):
-        stream_query = Stream.query().order(len(Stream.view_count))
+        #find the leaders and store them in the database
+        stream_query = Stream.query().order(-Stream.count)
         streams = stream_query.fetch(3)
-        leads = Leaders(name = 'champions', leader1 = streams[0], leader2 = streams[1], leader3 = streams[2])
-        leads.put()
 
+        i = 0
+
+
+        leads_stored = Leaders(name = 'champions',id = 'lkey')
+        for stream in streams:
+            leads_stored.champs.append(stream.name)
+        leaderkey = leads_stored.put()
+
+        # self.response.write(leaderkey)
 
 app = webapp2.WSGIApplication([
     ('/allpics', AllPhotosHandler),
