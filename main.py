@@ -86,7 +86,15 @@ class ViewAHandler(webapp2.RequestHandler):
         views = stream.view_count
         now = datetime.datetime.now()
         views.append(now)
+        hourback = now - datetime.timedelta(hours = 1)
+        self.response.write(hourback)
+
+        for view in views:
+            if view<hourback:
+                views.remove(view)
+
         stream.view_count = views
+
         stream.put()
 
 
