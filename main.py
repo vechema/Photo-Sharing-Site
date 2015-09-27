@@ -387,18 +387,33 @@ class TrendingHandler(webapp2.RequestHandler):
         #find the leaders and store them in the database
         stream_query = Stream.query().order(-Stream.count)
         streams = stream_query.fetch(3)
-        leads = Leaders(name = 'champions', leader1 = streams[0], leader2 = streams[1], leader3 = streams[2])
-        leads.put()
+
+        i = 0
+
+        # for stream in streams:
+        #     self.response.write(stream.name)
+        #     self.response.write(streams[i].name)
+        #     self.response.write('<br>')
+        #     i = i+ 1
+
+        leads_stored = Leaders(name = 'champions', leader1 = streams[0], leader2 = streams[1], leader3 = streams[2])
+        leads_stored.put()
 
         #gets the leaders from the datastore
         leads_query = Leaders.query(Leaders.name == 'champions')
-        leads = leads_query.fetch()
-        lead = leads[0]
+        leadlist = leads_query.fetch()
+        leads_retrieved = leadlist[0]
+        # self.response.write(lead == leads)
 
         #prints the leaders
-        self.response.write(lead.leader1.name)
-        self.response.write(lead.leader2.name)
-        self.response.write(lead.leader3.name)
+        self.response.write(leads_stored.leader1.name)
+        self.response.write(leads_stored.leader2.name)
+        self.response.write(leads_stored.leader3.name)
+        self.response.write('<br>')
+        self.response.write(leads_retrieved.leader1.name)
+        self.response.write(leads_retrieved.leader2.name)
+        self.response.write(leads_retrieved.leader3.name)
+
 
 class UpdateHandler(webapp2.RequestHandler):
     def get(self):
