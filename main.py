@@ -274,6 +274,12 @@ class PurgeHandler(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('templates/purge.html')
         self.response.write(template.render(template_values))
 
+class TrendingHandler(webapp2.RequestHandler):
+    def get(self):
+        template_values = {}
+        template = JINJA_ENVIRONMENT.get_template('templates/trends.html')
+        self.response.write(template.render(template_values))
+
 app = webapp2.WSGIApplication([
     ('/error', ErrorHandler),
     ('/viewall', ViewAllHandler),
@@ -285,4 +291,5 @@ app = webapp2.WSGIApplication([
     ('/login', LoginHandler),
     ('/', MainPage),
     ('/purge', PurgeHandler),
+    ('/trending', TrendingHandler),
     ], debug=True)
