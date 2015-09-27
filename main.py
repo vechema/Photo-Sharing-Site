@@ -39,9 +39,7 @@ class Stream(ndb.Model):
 
 class Leaders(ndb.Model):
     name = ndb.StringProperty()
-    leader1 = ndb.StructuredProperty(Stream)
-    leader2 = ndb.StructuredProperty(Stream)
-    leader3 = ndb.StructuredProperty(Stream)
+    champs = ndb.StringProperty(repeated=True)
 
 class MyUser(ndb.Model):
     streams_own = ndb.StringProperty(repeated=True) #Going to hold stream names
@@ -396,23 +394,31 @@ class TrendingHandler(webapp2.RequestHandler):
         #     self.response.write('<br>')
         #     i = i+ 1
 
-        leads_stored = Leaders(name = 'champions', leader1 = streams[0], leader2 = streams[1], leader3 = streams[2])
-        leads_stored.put()
+        leads_stored = Leaders(name = 'champions',id = 'lkey')
+        for stream in streams:
+            leads_stored.champs.append(stream.name)
+        leaderkey = leads_stored.put()
 
-        #gets the leaders from the datastore
-        leads_query = Leaders.query(Leaders.name == 'champions')
-        leadlist = leads_query.fetch()
-        leads_retrieved = leadlist[0]
-        # self.response.write(lead == leads)
+        # self.response.write(leaderkey)
 
-        #prints the leaders
-        self.response.write(leads_stored.leader1.name)
-        self.response.write(leads_stored.leader2.name)
-        self.response.write(leads_stored.leader3.name)
+        #GETS THE LEADERS FROM THE DATASTORE
+        # leads_query = Leaders.query(Leaders.name == 'champions')
+        # leadlist = leads_query.fetch()
+        # leads_retrieved = leadlist[0]
+
+        thekey = ndb.Key(Leaders, 'lkey')
+        leads_retrieved = thekey.get()
+
+
+        # prints the leaders
+        # for champ in leads_stored.champs:
+        #     self.response.write(champ)
+
+
         self.response.write('<br>')
-        self.response.write(leads_retrieved.leader1.name)
-        self.response.write(leads_retrieved.leader2.name)
-        self.response.write(leads_retrieved.leader3.name)
+
+        for champr in leads_retrieved.champs:
+            self.response.write(champr)
 
 
 class UpdateHandler(webapp2.RequestHandler):
