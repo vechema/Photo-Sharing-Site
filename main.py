@@ -376,27 +376,39 @@ class PurgeHandler(webapp2.RequestHandler):
 
 class TrendingHandler(webapp2.RequestHandler):
     def get(self):
-        template_values = {}
-        template = JINJA_ENVIRONMENT.get_template('templates/trends.html')
-        self.response.write(template.render(template_values))
+        # template_values = {}
+
+
+        #set already known key for leader information
+        thekey = ndb.Key(Leaders, 'lkey')
 
         #check to see if leader information is available yet
-
-
+        if(thekey.get()==None):
+            return
 
         #GETS THE LEADERS FROM THE DATASTORE
-        thekey = ndb.Key(Leaders, 'lkey')
         leads_retrieved = thekey.get()
 
         #testing
         # self.response.write(leads_retrieved.key)
 
+        leaders = []
 
         # prints the leaders
-        self.response.write('<br>')
+        for champ in leads_retrieved.champs:
+            leaders.append(champ.get())
 
-        for champr in leads_retrieved.champs:
-            self.response.write(champr)
+
+        template_values ={
+            'streams' : leaders
+        }
+        template = JINJA_ENVIRONMENT.get_template('templates/trends.html')
+        self.response.write(template.render(template_values))
+
+        # self.response.write('<br>')
+        #
+        # for champr in leads_retrieved.champs:
+        #     self.response.write(champr)
 
 
 class UpdateHandler(webapp2.RequestHandler):
