@@ -82,8 +82,8 @@ class ViewAHandler(webapp2.RequestHandler):
         photo_url_list = []
         pics = stream.photos
 
-#        for i in range(0,3):
-#            photo_url_list.append(get_serving_url(pics[i].blob_key))
+        for i in range(0,3):
+            photo_url_list.append(get_serving_url(pics[i].blob_key))
 
         template_values = {
             'stream' : stream,
@@ -151,7 +151,14 @@ class CreateHandler(webapp2.RequestHandler):
 
         #Put it all together in a stream object
         safe_name_url = urllib.quote_plus(stream_name)
-        stream = Stream(name=stream_name, name_safe=safe_name_url, subscribers=emails, tags=tag_list, cover_url=cover)
+        stream = Stream()
+        stream.name=stream_name
+        stream.name_safe=safe_name_url
+        stream.subscribers=emails
+        stream.tags=tag_list
+        stream.cover_url=cover
+        stream.num_pics=0
+
         stream.put()
 
         self.redirect('/manage')
