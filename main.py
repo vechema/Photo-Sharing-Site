@@ -38,12 +38,11 @@ class Stream(ndb.Model):
     count = ndb.ComputedProperty(lambda e: len(e.view_count))
 
 class Leaders(ndb.Model):
-    name = ndb.StringProperty()
-    champs = ndb.StringProperty(repeated=True)
+    champs = ndb.KeyProperty(repeated=True)
 
 class MyUser(ndb.Model):
-    streams_own = ndb.StringProperty(repeated=True) #Going to hold stream names
-    streams_subscribe = ndb.StringProperty(repeated=True) #Going to hold stream names
+    streams_own = ndb.KeyProperty(repeated=True) #Going to hold stream names
+    streams_subscribe = ndb.KeyProperty(repeated=True) #Going to hold stream keys
     email = ndb.StringProperty()
     update_rate = ndb.StringProperty()
 
@@ -382,12 +381,15 @@ class TrendingHandler(webapp2.RequestHandler):
         self.response.write(template.render(template_values))
 
         #check to see if leader information is available yet
-        
+
 
 
         #GETS THE LEADERS FROM THE DATASTORE
         thekey = ndb.Key(Leaders, 'lkey')
         leads_retrieved = thekey.get()
+
+        #testing
+        # self.response.write(leads_retrieved.key)
 
 
         # prints the leaders
@@ -399,16 +401,15 @@ class TrendingHandler(webapp2.RequestHandler):
 
 class UpdateHandler(webapp2.RequestHandler):
     def get(self):
-        #find the leaders and store them in the database
+        #find the leaders
         stream_query = Stream.query().order(-Stream.count)
         streams = stream_query.fetch(3)
 
-        i = 0
 
-
-        leads_stored = Leaders(name = 'champions',id = 'lkey')
+        #Store them by key in the database in a leader's object
+        leads_stored = Leaders(id = 'lkey')
         for stream in streams:
-            leads_stored.champs.append(stream.name)
+            leads_stored.champs.append(stream.key)
         leaderkey = leads_stored.put()
 
         # self.response.write(leaderkey)
