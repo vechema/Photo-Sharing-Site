@@ -100,20 +100,20 @@ class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
     def post(self):
         try:
             #Get the blob_key
-            upload = self.get_uploads()[0]
+            upload = self.get_uploads('file')
 
             #Get stream, name & comments
-            photo_name = self.request.get('file_name')
-            photo_comment = self.request.get('comment')
+            photo_name = self.get_uploads('file_name')
+            photo_comment = self.get_uploads('comment')
 
-            # name = self.request.get('stream')
+            name = self.request.get('stream')
             # stream_query = Stream.query(Stream.name == stream_name)
             # streams = stream_query.fetch()
             # stream = streams[0]
 
             user_photo = Picture(blob_key=upload.key(), name=photo_name, comments=photo_comment)
             user_photo.put()
-            self.redirect('/')
+            self.redirect('/view?stream=' + urllib.quote_plus(photo_name))
         except:
             self.error(500)
 
