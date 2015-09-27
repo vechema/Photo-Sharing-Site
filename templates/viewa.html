@@ -13,12 +13,11 @@
     {% endfor %}
     <h3>Add an image</h3>
     <form action="{{upload_url}}" method="POST" enctype="multipart/form-data">
+        <div name="stream" value="{{stream.name}}">{{stream.name}}</div>
         <br><input type="text" name="file_name" placeholder="file name">
         <br><input type="text" name="comment" placeholder="comments">
         <br><input type="file" name="file">
         <br><input type="submit" name="submit" value="Submit">
-
-
     </form>
 </body>
 </html>

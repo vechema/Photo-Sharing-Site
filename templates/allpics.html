@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <head><title>All the photos</title></head>
+</head>
+<body>
+    {% include 'templates/header.html' %}
+
+    <table>
+        {% for photo in photos %}
+            <br>Pic: <img src="{{photo.pic_url}}" style="width:128px;height:128px;"></br>
+            <br> {{photo.name}} and {{photo.comment}}</br>
+        {% endfor %}
+    </table>
+</body>
+</html>

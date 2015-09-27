@@ -3,6 +3,7 @@ import os
 import urllib
 import jinja2
 import datetime
+import cgi
 
 from google.appengine.api import users
 from google.appengine.ext import ndb
@@ -19,9 +20,11 @@ JINJA_ENVIRONMENT = jinja2.Environment(
 
 class Picture(ndb.Model):
     name = ndb.StringProperty()
-    comments = ndb.StringProperty()
+    comment = ndb.StringProperty()
     upload_date = ndb.DateTimeProperty(auto_now_add=True)
     blob_key = ndb.BlobKeyProperty()
+    pic_url = ndb.StringProperty()
+
 
 class Stream(ndb.Model):
     name = ndb.StringProperty()
@@ -32,6 +35,7 @@ class Stream(ndb.Model):
     cover_url = ndb.StringProperty()
     photos = ndb.StructuredProperty(Picture, repeated=True)
     view_count = ndb.IntegerProperty()
+
 
 class ErrorHandler(webapp2.RequestHandler):
     def get(self):
@@ -48,6 +52,7 @@ class ErrorHandler(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('templates/error.html')
         self.response.write(template.render(template_values))
 
+
 class ViewAllHandler(webapp2.RequestHandler):
     def get(self):
         stream_names = []
@@ -59,6 +64,7 @@ class ViewAllHandler(webapp2.RequestHandler):
         }
         template = JINJA_ENVIRONMENT.get_template('templates/viewall.html')
         self.response.write(template.render(template_values))
+
 
 class ViewAMoreHandler(webapp2.RequestHandler):
     def get(self):
@@ -100,22 +106,48 @@ class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
     def post(self):
         try:
             #Get the blob_key
-            upload = self.get_uploads('file')
+            upload = self.get_uploads()[0]
+
+            garbage = self.get_uploads()
 
             #Get stream, name & comments
-            photo_name = self.get_uploads('file_name')
-            photo_comment = self.get_uploads('comment')
+            photo_name = self.request.get('file_name')
+            photo_comment = self.request.get('comment')
+            stream_name = self.request.get('stream')
 
-            name = self.request.get('stream')
+            # name = self.request.get('stream')
             # stream_query = Stream.query(Stream.name == stream_name)
             # streams = stream_query.fetch()
             # stream = streams[0]
 
-            user_photo = Picture(blob_key=upload.key(), name=photo_name, comments=photo_comment)
+            user_photo = Picture(blob_key=upload.key(), name=photo_name, comment=photo_comment)
+            img_url = get_serving_url(user_photo.blob_key)
+            user_photo.pic_url = img_url
             user_photo.put()
-            self.redirect('/view?stream=' + urllib.quote_plus(photo_name))
+            self.redirect('/' + stream_name)
         except:
             self.error(500)
+
+
+class AllPhotosHandler(webapp2.RequestHandler):
+    def get(self):
+
+        photo_query = Picture.query().order(-Picture.upload_date)
+        photos = photo_query.fetch()
+        # i = 0
+        # pic_url_list = []
+        # for result in photos:
+        #     i = i + 1
+        #     photo_key = result.blob_key
+        #     img_url = get_serving_url(photo_key)
+        #     pic_url_list.append(img_url)
+
+        template_values = {
+#            'pic_url_list' : pic_url_list,
+            'photos' : photos,
+        }
+        template = JINJA_ENVIRONMENT.get_template('templates/allpics.html')
+        self.response.write(template.render(template_values))
 
 class CreateHandler(webapp2.RequestHandler):
     def get(self):
@@ -169,6 +201,7 @@ class CreateHandler(webapp2.RequestHandler):
 
         self.redirect('/manage')
 
+
 def sendSubscriptionEmails(emails, note, stream_url):
     user = users.get_current_user()
     for email in emails:
@@ -183,6 +216,7 @@ def sendSubscriptionEmails(emails, note, stream_url):
 
             message.send()
 
+
 class ManageHandler(webapp2.RequestHandler):
     def get(self):
         user = users.get_current_user()
@@ -196,9 +230,11 @@ class ManageHandler(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('templates/manage.html')
         self.response.write(template.render(template_values))
 
+
 class MainPage(webapp2.RequestHandler):
     def get(self):
         self.redirect('/manage')
+
 
 class LoginHandler(webapp2.RequestHandler):
     def get(self):
@@ -223,6 +259,7 @@ class LoginHandler(webapp2.RequestHandler):
 
         template = JINJA_ENVIRONMENT.get_template('templates/login.html')
         self.response.write(template.render(template_values))
+
 
 class PurgeHandler(webapp2.RequestHandler):
     def get(self):
@@ -259,7 +296,28 @@ class PurgeHandler(webapp2.RequestHandler):
             hour = datetime.datetime.now().time().hour
             minute = datetime.datetime.now().time().minute
             second = datetime.datetime.now().time().second
-            data_message = (str(index) + ' items deleted from Datastore at ' + str(hour) + ':' + str(minute) + ':' + str(second)+'\n\n')
+            stream_message = (str(index) + ' items deleted from Stream at ' + str(hour) + ':' + str(minute) + ':' + str(second)+'\n\n')
+            if index == 400:
+                self.redirect("/purge")
+
+
+        except Exception, e:
+ #           self.response.out.write('Error is: ' + repr(e) + '\n')
+            pass
+
+        try:
+            stream_query = Picture.query()
+            streams = stream_query.fetch(400)
+            index = 0
+            if len(streams) > 0:
+                for result in streams:
+                    result.key.delete()
+                    index+=1
+
+            hour = datetime.datetime.now().time().hour
+            minute = datetime.datetime.now().time().minute
+            second = datetime.datetime.now().time().second
+            pic_message = (str(index) + ' items deleted from Picture at ' + str(hour) + ':' + str(minute) + ':' + str(second)+'\n\n')
             if index == 400:
                 self.redirect("/purge")
 
@@ -269,10 +327,12 @@ class PurgeHandler(webapp2.RequestHandler):
             pass
         template_values ={
             'blob_message' : blob_message,
-            'data_message' : data_message,
+            'stream_message' : stream_message,
+            'pic_message' : pic_message,
         }
         template = JINJA_ENVIRONMENT.get_template('templates/purge.html')
         self.response.write(template.render(template_values))
+
 
 class TrendingHandler(webapp2.RequestHandler):
     def get(self):
@@ -280,7 +340,9 @@ class TrendingHandler(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('templates/trends.html')
         self.response.write(template.render(template_values))
 
+
 app = webapp2.WSGIApplication([
+    ('/allpics', AllPhotosHandler),
     ('/error', ErrorHandler),
     ('/viewall', ViewAllHandler),
     ('/viewmore', ViewAMoreHandler),
