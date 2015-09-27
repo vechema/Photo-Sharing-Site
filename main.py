@@ -86,7 +86,15 @@ class ViewAHandler(webapp2.RequestHandler):
         views = stream.view_count
         now = datetime.datetime.now()
         views.append(now)
+        hourback = now - datetime.timedelta(hours = 1)
+        self.response.write(hourback)
+
+        for view in views:
+            if view<hourback:
+                views.remove(view)
+
         stream.view_count = views
+
         stream.put()
 
 
@@ -111,7 +119,7 @@ class ViewAHandler(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('templates/viewa.html')
         self.response.write(template.render(template_values))
         for view in views:
-            self.response.write(view)
+            self.response.write(str(view) + '<br>')
 
 
 class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
