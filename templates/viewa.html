@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    {% include 'templates/header.html' %}
+    <h3>{{stream.name}}</h3>
+
+    {% for photo_url in photo_url_list %}
+        <br>Pic: <img src="{{photo_url}}" style="width:128px;height:128px;"></br>
+    {% endfor %}
+    <h3>Add an image</h3>
+    <form action="{{upload_url}}" method="POST" enctype="multipart/form-data">
+        <br><input type="text" name="filename" placeholder="file name">
+        <br><input type="text" name="comment" placeholder="comments">
+        <br><input type="file" name="file">
+        <br><input type="submit" name="submit" value="Submit">
+
+
+    </form>
+</body>
+</html>

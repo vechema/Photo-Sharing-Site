@@ -8,7 +8,9 @@
     {% include 'templates/header.html' %}
     <h4>View All Streams</h4>
     {% for stream in streams %}
-        <img src="{{stream.cover_url|safe}}" style="width:128px;height:128px;">
+        <a href="/view?stream={{stream.name_safe}}">
+            <img src="{{stream.cover_url}}" style="width:128px;height:128px;">
+        </a>
         <br>{{stream.name}}
         <ul id="categories">
             <li>subscribers

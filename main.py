@@ -8,6 +8,7 @@ from google.appengine.api import users
 from google.appengine.ext import ndb
 from google.appengine.ext import blobstore
 from google.appengine.api import mail
+from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.api.images import get_serving_url
 
 
@@ -20,16 +21,18 @@ class Picture(ndb.Model):
     name = ndb.StringProperty()
     comments = ndb.StringProperty()
     upload_date = ndb.DateTimeProperty(auto_now_add=True)
+    blob_key = ndb.BlobKeyProperty()
 
 class Stream(ndb.Model):
     name = ndb.StringProperty()
+    name_safe = ndb.StringProperty()
     creation_date = ndb.DateTimeProperty(auto_now_add=True)
     subscribers = ndb.StringProperty(repeated=True)
     tags = ndb.StringProperty(repeated=True)
     cover_url = ndb.StringProperty()
     num_pics = ndb.IntegerProperty()
     photos = ndb.StructuredProperty(Picture, repeated=True)
-
+    view_count = ndb.IntegerProperty()
 
 class ErrorHandler(webapp2.RequestHandler):
     def get(self):
@@ -57,6 +60,55 @@ class ViewAllHandler(webapp2.RequestHandler):
         }
         template = JINJA_ENVIRONMENT.get_template('templates/viewall.html')
         self.response.write(template.render(template_values))
+
+class ViewAMoreHandler(webapp2.RequestHandler):
+    def get(self):
+        template_values ={
+        }
+        template = JINJA_ENVIRONMENT.get_template('templates/viewamore.html')
+        self.response.write(template.render(template_values))
+
+
+class ViewAHandler(webapp2.RequestHandler):
+    def get(self):
+        stream_name = self.request.get('stream')
+
+        stream_query = Stream.query(Stream.name == stream_name)
+        streams = stream_query.fetch()
+        stream = streams[0]
+
+        upload_url = blobstore.create_upload_url('/upload_photo')
+
+        photo_url_list = []
+        pics = stream.photos
+
+#        for i in range(0,3):
+#            photo_url_list.append(get_serving_url(pics[i].blob_key))
+
+        template_values = {
+            'stream' : stream,
+            'upload_url' : upload_url,
+            'photo_url_list' : photo_url_list,
+        }
+        template = JINJA_ENVIRONMENT.get_template('templates/viewa.html')
+        self.response.write(template.render(template_values))
+
+
+class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
+    def post(self):
+        try:
+            #Get the blob_key
+            upload = self.get_uploads()[0]
+
+            #Get name & comments
+            photo_name = self.request.get('filename')
+            photo_comment = self.request.get('comment')
+
+            user_photo = Picture(blob_key=upload.key(), name=photo_name, comments=photo_comment)
+            user_photo.put()
+            self.redirect('/')
+        except:
+            self.error(500)
 
 class CreateHandler(webapp2.RequestHandler):
     def get(self):
@@ -98,7 +150,8 @@ class CreateHandler(webapp2.RequestHandler):
             cover = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/300px-No_image_available.svg.png"
 
         #Put it all together in a stream object
-        stream = Stream(name=stream_name, subscribers=emails, tags=tag_list, cover_url=cover)
+        safe_name_url = urllib.quote_plus(stream_name)
+        stream = Stream(name=stream_name, name_safe=safe_name_url, subscribers=emails, tags=tag_list, cover_url=cover)
         stream.put()
 
         self.redirect('/manage')
@@ -211,6 +264,9 @@ class PurgeHandler(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/error', ErrorHandler),
     ('/viewall', ViewAllHandler),
+    ('/viewmore', ViewAMoreHandler),
+    ('/upload_photo', PhotoUploadHandler),
+    ('/view', ViewAHandler),
     ('/create', CreateHandler),
     ('/manage', ManageHandler),
     ('/login', LoginHandler),
