@@ -1,0 +1,4 @@
+cron:
+- description: update leaders
+  url: /update
+  schedule: every 2 minutes

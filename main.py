@@ -35,6 +35,19 @@ class Stream(ndb.Model):
     cover_url = ndb.StringProperty()
     photos = ndb.StructuredProperty(Picture, repeated=True)
     view_count = ndb.DateTimeProperty(repeated=True)
+    count = ndb.ComputedProperty(lambda e: len(e.view_count))
+
+class Leaders(ndb.Model):
+    name = ndb.StringProperty()
+    leader1 = ndb.StructuredProperty(Stream)
+    leader2 = ndb.StructuredProperty(Stream)
+    leader3 = ndb.StructuredProperty(Stream)
+
+class MyUser(ndb.Model):
+    streams_own = ndb.StringProperty(repeated=True) #Going to hold stream names
+    streams_subscribe = ndb.StringProperty(repeated=True) #Going to hold stream names
+    email = ndb.StringProperty()
+    update_rate = ndb.StringProperty()
 
 
 class ErrorHandler(webapp2.RequestHandler):
@@ -361,6 +374,30 @@ class TrendingHandler(webapp2.RequestHandler):
         self.response.write(template.render(template_values))
 
 
+        #find the leaders and store them in the database
+        stream_query = Stream.query().order(Stream.count)
+        streams = stream_query.fetch(3)
+        leads = Leaders(name = 'champions', leader1 = streams[0], leader2 = streams[1], leader3 = streams[2])
+        leads.put()
+
+        #gets the leaders from the datastore
+        leads_query = Leaders.query(Leaders.name == 'champions')
+        leads = leads_query.fetch()
+        lead = leads[0]
+
+        #prints the leaders
+        self.response.write(lead.leader1.name)
+        self.response.write(lead.leader2.name)
+        self.response.write(lead.leader3.name)
+
+class UpdateHandler(webapp2.RequestHandler):
+    def get(self):
+        stream_query = Stream.query().order(len(Stream.view_count))
+        streams = stream_query.fetch(3)
+        leads = Leaders(name = 'champions', leader1 = streams[0], leader2 = streams[1], leader3 = streams[2])
+        leads.put()
+
+
 app = webapp2.WSGIApplication([
     ('/allpics', AllPhotosHandler),
     ('/error', ErrorHandler),
@@ -374,4 +411,5 @@ app = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/purge', PurgeHandler),
     ('/trending', TrendingHandler),
+    ('/update', UpdateHandler),
     ], debug=True)
