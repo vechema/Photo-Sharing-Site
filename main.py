@@ -34,7 +34,7 @@ class Stream(ndb.Model):
     tags = ndb.StringProperty(repeated=True)
     cover_url = ndb.StringProperty()
     photos = ndb.StructuredProperty(Picture, repeated=True)
-    view_count = ndb.IntegerProperty()
+    view_count = ndb.DateTimeProperty(repeated=True)
 
 
 class ErrorHandler(webapp2.RequestHandler):
@@ -82,6 +82,16 @@ class ViewAHandler(webapp2.RequestHandler):
         streams = stream_query.fetch()
         stream = streams[0]
 
+        #add the current date and time to the stream's view_count list
+        views = stream.view_count
+        now = datetime.datetime.now()
+        views.append(now)
+        stream.view_count = views
+        stream.put()
+
+
+
+
         upload_url = blobstore.create_upload_url('/upload_photo')
 
         photo_url_list = []
@@ -100,6 +110,8 @@ class ViewAHandler(webapp2.RequestHandler):
         }
         template = JINJA_ENVIRONMENT.get_template('templates/viewa.html')
         self.response.write(template.render(template_values))
+        for view in views:
+            self.response.write(view)
 
 
 class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
