@@ -497,6 +497,50 @@ class SendFiveHandler(webapp2.RequestHandler):
             message.body = """Check out what's trending! http://apt2015mp.appspot.com/trending"""
             message.send()
 
+class SendHourHandler(webapp2.RequestHandler):
+    def get(self):
+        #find all users who want an email update every hour
+        user_query = MyUser.query(MyUser.update_rate == 'every hour')
+        users = user_query.fetch()
+
+        #test
+        # message = mail.EmailMessage()
+        # message.sender = 'andrew.c.stier@gmail.com'
+        # message.to = 'andrew.c.stier@gmail.com'
+        # message.body = """Check the new trends!"""
+        # message.send()
+
+        for eachuser in users:
+            message = mail.EmailMessage()
+            message.subject = 'Your Connexus Update!'
+            message.sender = 'andrew.c.stier@gmail.com'
+            message.to = eachuser.email
+            self.response.write(eachuser.email)
+            message.body = """Check out what's trending! http://apt2015mp.appspot.com/trending"""
+            message.send()
+
+class SendDayHandler(webapp2.RequestHandler):
+    def get(self):
+        #find all users who want an email update every hour
+        user_query = MyUser.query(MyUser.update_rate == 'every day')
+        users = user_query.fetch()
+
+        #test
+        # message = mail.EmailMessage()
+        # message.sender = 'andrew.c.stier@gmail.com'
+        # message.to = 'andrew.c.stier@gmail.com'
+        # message.body = """Check the new trends!"""
+        # message.send()
+
+        for eachuser in users:
+            message = mail.EmailMessage()
+            message.subject = 'Your Connexus Update!'
+            message.sender = 'andrew.c.stier@gmail.com'
+            message.to = eachuser.email
+            self.response.write(eachuser.email)
+            message.body = """Check out what's trending! http://apt2015mp.appspot.com/trending"""
+            message.send()
+
 app = webapp2.WSGIApplication([
     ('/allpics', AllPhotosHandler),
     ('/error', ErrorHandler),
@@ -512,4 +556,6 @@ app = webapp2.WSGIApplication([
     ('/trending', TrendingHandler),
     ('/update', UpdateHandler),
     ('/sendfive', SendFiveHandler),
+    ('/sendhour', SendHourHandler),
+    ('/sendday', SendDayHandler),
     ], debug=True)
