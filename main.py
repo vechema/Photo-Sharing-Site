@@ -92,12 +92,33 @@ class ViewAHandler(webapp2.RequestHandler):
         streams = stream_query.fetch()
         stream = streams[0]
 
-        #add the current date and time to the stream's view_count list
+        #add the current date and time to the stream's view_count list if viewer is not stream owner
         views = stream.view_count
         now = datetime.datetime.now()
-        views.append(now)
+
+        #Check that the user is not the one viewing the stream
+        #If the user is not signed in, it counts as a view
+        user = users.get_current_user()
+        if not user:
+            views.append(now)
+        #If the user is signed it, check that this is not one of their streams
+        else:
+            userkey = ndb.Key(MyUser, user.email())
+
+            #confirm or create MyUser object
+            if (userkey.get() == None):
+                NewUser = MyUser(id = user.email(), email = user.email(),update_rate = 'never')
+                NewUser.put()
+
+            currentuser = userkey.get()
+
+            #Is user's stream keys do not contain this stream key, add view to stream's view queue
+            if (stream.key not in currentuser.streams_own):
+                views.append(now)
+
+        #Purge hour old views
         hourback = now - datetime.timedelta(hours = 1)
-        self.response.write(hourback)
+        #self.response.write(hourback)
 
         for view in views:
             if view<hourback:
