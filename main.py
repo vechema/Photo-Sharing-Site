@@ -194,6 +194,24 @@ class SubscribeHandler(webapp2.RequestHandler):
 
         self.redirect('/view?stream=' + stream_name)
 
+class UnsubscribeHandler(webapp2.RequestHandler):
+    def post(self):
+        stream_names = self.request.get_all('stream_name')
+
+        user = users.get_current_user()
+        cur_user = ndb.Key(MyUser, user.email()).get()
+
+        subs = cur_user.streams_subscribe
+        for sub in subs:
+            stream = sub.get()
+            for name in stream_names:
+                if stream.name == name:
+                    subs.remove(sub)
+
+        cur_user.streams_subscribe = subs
+        cur_user.put()
+        
+        self.redirect('/manage')
 
 class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
     def post(self):
@@ -671,6 +689,7 @@ app = webapp2.WSGIApplication([
     ('/view', ViewAHandler),
     ('/morepics', MorePicsHandler),
     ('/subscribe', SubscribeHandler),
+    ('/unsubscribe', UnsubscribeHandler),
     ('/create', CreateHandler),
     ('/manage', ManageHandler),
     ('/login', LoginHandler),
