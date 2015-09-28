@@ -269,7 +269,7 @@ class ManageHandler(webapp2.RequestHandler):
         userkey = ndb.Key(MyUser, user.email())
 
         if (userkey.get() == None):
-            NewUser = MyUser(id = user.email(), email = user.email(),update_rate = 'r_never')
+            NewUser = MyUser(id = user.email(), email = user.email(),update_rate = 'never')
             NewUser.put()
 
         # ThisUser = userkey.get()
@@ -389,7 +389,21 @@ class PurgeHandler(webapp2.RequestHandler):
 
 class TrendingHandler(webapp2.RequestHandler):
     def get(self):
-        # template_values = {}
+        #Find current update rate
+        #Check to make sure there is a user object
+        user = users.get_current_user()
+        if not user:
+            self.redirect(users.create_login_url(self.request.uri))
+            return
+
+        #confirm or create MyUser object
+        userkey = ndb.Key(MyUser, user.email())
+
+        if (userkey.get() == None):
+            NewUser = MyUser(id = user.email(), email = user.email(),update_rate = 'never')
+            NewUser.put()
+
+        currentrate = userkey.get().update_rate
 
 
         #set already known key for leader information
@@ -413,7 +427,8 @@ class TrendingHandler(webapp2.RequestHandler):
 
 
         template_values ={
-            'streams' : leaders
+            'current_rate' : currentrate,
+            'streams' : leaders,
         }
         template = JINJA_ENVIRONMENT.get_template('templates/trends.html')
         self.response.write(template.render(template_values))
@@ -433,7 +448,7 @@ class TrendingHandler(webapp2.RequestHandler):
         userkey = ndb.Key(MyUser, user.email())
 
         if (userkey.get() == None):
-            NewUser = MyUser(id = user.email(), email = user.email(),update_rate = 'r_never')
+            NewUser = MyUser(id = user.email(), email = user.email(),update_rate = 'never')
             NewUser.put()
 
         #update rate of currentuser

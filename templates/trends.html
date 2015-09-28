@@ -8,14 +8,17 @@
     {% include 'templates/header.html' %}
     <h2>Top 3 Trending Streams</h2>
     <h3>Email Trending Report</h3>
+    Your current update rate is {{ current_rate }}.
+    <br>
+    <br>
     <form method="post">
-         <input type="radio" name="rate" value="r_never" checked>No reports
+         <input type="radio" name="rate" value="never" checked>No reports
         <br>
-         <input type="radio" name="rate" value="r_five">Every 5 minutes
+         <input type="radio" name="rate" value="every five minutes">Every 5 minutes
         <br>
-         <input type="radio" name="rate" value="r_hour">Every hour
+         <input type="radio" name="rate" value="every hour">Every hour
         <br>
-         <input type="radio" name="rate" value="r_day">Every day
+         <input type="radio" name="rate" value="every day">Every day
         <br><br>
         <input type="submit" value="Update Rate">
     </form>
