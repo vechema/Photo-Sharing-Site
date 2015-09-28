@@ -201,17 +201,87 @@ class UnsubscribeHandler(webapp2.RequestHandler):
         user = users.get_current_user()
         cur_user = ndb.Key(MyUser, user.email()).get()
 
-        subs = cur_user.streams_subscribe
-        for sub in subs:
+        subs_to_remove = []
+        for sub in cur_user.streams_subscribe:
             stream = sub.get()
             for name in stream_names:
                 if stream.name == name:
-                    subs.remove(sub)
+                    subs_to_remove.append(sub)
 
-        cur_user.streams_subscribe = subs
+        new_sub_list = []
+        for sub in cur_user.streams_subscribe:
+            if sub not in subs_to_remove:
+                new_sub_list.append(sub)
+
+        cur_user.streams_subscribe = new_sub_list
+
         cur_user.put()
-        
+
         self.redirect('/manage')
+
+class DeleteHandler(webapp2.RequestHandler):
+    def post(self):
+
+        stream_names = self.request.get_all('stream_name')
+
+        #Delete it in MyUser.streams_own
+        user = users.get_current_user()
+        cur_user = ndb.Key(MyUser, user.email()).get()
+
+        owns_to_remove = []
+        for owned in cur_user.streams_own:
+            stream = owned.get()
+            for name in stream_names:
+                if stream.name == name:
+                    owns_to_remove.append(owned)
+
+        new_own_list = []
+        for owned in cur_user.streams_own:
+            if owned not in owns_to_remove:
+                new_own_list.append(owned)
+
+        cur_user.streams_own = new_own_list
+        cur_user.put()
+
+        #Delete it in MyUser.streams_subscribe
+        user_query = MyUser.query()
+        myusers = user_query.fetch(400)
+        index = 0
+        if len(myusers) > 0:
+            for myuser in myusers:
+                subs_to_remove = []
+                for sub in myuser.streams_subscribe:
+                    stream = sub.get()
+                    for name in stream_names:
+                        if stream.name == name:
+                            subs_to_remove.append(sub)
+
+                new_sub_list = []
+                for sub in myuser.streams_subscribe:
+                    if sub not in subs_to_remove:
+                        new_sub_list.append(sub)
+
+                myuser.streams_subscribe = new_sub_list
+                myuser.put()
+
+
+        #Need to delete the stream & its pictures
+        for stream_name in stream_names:
+            stream_query = Stream.query(Stream.name == stream_name)
+            streams = stream_query.fetch()
+            stream = streams[0]
+
+            # Trying to delete the picture but only delete it being held in a stream
+            #for pic in stream.photos:
+            #    pic.key.delete()
+            #stream.photos = []
+            #stream.put()
+
+            #stream deleted
+            stream.key.delete()
+
+        self.redirect('/manage')
+        #self.redirect('/view?stream=' + prac)
 
 class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
     def post(self):
@@ -457,11 +527,11 @@ class PurgeHandler(webapp2.RequestHandler):
             pass
 
         try:
-            stream_query = Picture.query()
-            streams = stream_query.fetch(400)
+            pic_query = Picture.query()
+            pics = pic_query.fetch(400)
             index = 0
-            if len(streams) > 0:
-                for result in streams:
+            if len(pics) > 0:
+                for result in pics:
                     result.key.delete()
                     index+=1
 
@@ -690,6 +760,7 @@ app = webapp2.WSGIApplication([
     ('/morepics', MorePicsHandler),
     ('/subscribe', SubscribeHandler),
     ('/unsubscribe', UnsubscribeHandler),
+    ('/delete', DeleteHandler),
     ('/create', CreateHandler),
     ('/manage', ManageHandler),
     ('/login', LoginHandler),

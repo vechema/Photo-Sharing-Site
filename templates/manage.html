@@ -35,6 +35,7 @@
 <body>
     {% include 'templates/header.html' %}
     <h2>Welcome {{name}}</h2>
+    <form action="/delete" method="POST" >
     <br><table class="gridtable"><h4>Streams I own</h4>
         <tr>
             <th>Name</th>
@@ -47,11 +48,14 @@
             <td><a href="/view?stream={{key.get().name}}">{{key.get().name}}</a></td>
             <td>{{key.get().update_date}}</td>
             <td>{{key.get().num_pics}}</td>
-            <td><input type="checkbox"></td>
+            <td>
+                <input type="checkbox" name="stream_name" value="{{key.get().name}}">
+            </td>
         </tr>
     {% endfor %}
     </table>
     <input type="submit" value="Delete" name="delete" />
+    </form>
 
     <form action="/unsubscribe" method="POST" >
     <br><table class="gridtable"><h4>Streams I subscribe to</h4>
@@ -69,9 +73,7 @@
             <td>{{key.get().num_pics}}</td>
             <td>{{key.get().count}}</td>
             <td>
-
-                    <input type="checkbox" name="stream_name" value="{{key.get().name}}">
-
+                <input type="checkbox" name="stream_name" value="{{key.get().name}}">
             </td>
         </tr>
     {% endfor %}
