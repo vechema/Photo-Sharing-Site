@@ -7,17 +7,20 @@
 <body>
     {% include 'templates/header.html' %}
     <h2>Top 3 Trending Streams</h2>
-    <form>
+    <h3>Email Trending Report</h3>
+    <form method="post">
          <input type="radio" name="rate" value="r_never" checked>No reports
         <br>
          <input type="radio" name="rate" value="r_five">Every 5 minutes
         <br>
          <input type="radio" name="rate" value="r_hour">Every hour
         <br>
-         <input type="radio" name="rate" value="r_hour">Every day
+         <input type="radio" name="rate" value="r_day">Every day
+        <br><br>
+        <input type="submit" value="Update Rate">
     </form>
+    <h3>Current Leaders</h3>
 
-    <h3>Email Trending Report</h3>
 
     {% for stream in streams %}
         <a href="/view?stream={{stream.name_safe}}">

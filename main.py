@@ -418,10 +418,31 @@ class TrendingHandler(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('templates/trends.html')
         self.response.write(template.render(template_values))
 
-        # self.response.write('<br>')
-        #
-        # for champr in leads_retrieved.champs:
-        #     self.response.write(champr)
+    def post(self):
+        #Get the rate choice
+        rate_choice = self.request.get('rate')
+
+        #Check to make sure there is a user object
+        user = users.get_current_user()
+        if not user:
+            self.redirect(users.create_login_url(self.request.uri))
+            return
+
+        #confirm or create MyUser object
+        #MyUser instances are stored in blobstore using the user email as a key (id)
+        userkey = ndb.Key(MyUser, user.email())
+
+        if (userkey.get() == None):
+            NewUser = MyUser(id = user.email(), email = user.email(),update_rate = 'r_never')
+            NewUser.put()
+
+        #update rate of currentuser
+        current_user = userkey.get()
+        current_user.update_rate = rate_choice
+        current_user.put()
+
+        # self.response.write(current_user.update_rate)
+        self.redirect('/trending')
 
 
 class UpdateHandler(webapp2.RequestHandler):
