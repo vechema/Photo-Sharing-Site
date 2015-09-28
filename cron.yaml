@@ -1,4 +1,8 @@
 cron:
 - description: update leaders
   url: /update
-  schedule: every 2 minutes
+  schedule: every 5 minutes
+
+- description: send a trending report every five minutes to subscribers
+  url: /sendfive
+  schedule: every 40 minutes

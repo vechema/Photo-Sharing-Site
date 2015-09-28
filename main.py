@@ -475,6 +475,15 @@ class UpdateHandler(webapp2.RequestHandler):
 
         # self.response.write(leaderkey)
 
+class SendFiveHandler(webapp2.RequestHandler):
+    def get(self):
+        #find all users who want an email update every five minutes
+        user_query = MyUser.query(MyUser.update_rate == 'every five minutes')
+        users = user_query.fetch()
+
+        for eachuser in users:
+            self.response.write(eachuser.email)
+
 app = webapp2.WSGIApplication([
     ('/allpics', AllPhotosHandler),
     ('/error', ErrorHandler),
@@ -489,4 +498,5 @@ app = webapp2.WSGIApplication([
     ('/purge', PurgeHandler),
     ('/trending', TrendingHandler),
     ('/update', UpdateHandler),
+    ('/sendfive', SendFiveHandler),
     ], debug=True)
