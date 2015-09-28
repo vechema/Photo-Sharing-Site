@@ -263,6 +263,19 @@ class ManageHandler(webapp2.RequestHandler):
         if not user:
             self.redirect(users.create_login_url(self.request.uri))
             return
+
+        #confirm or create MyUser object
+        #MyUser instances are stored in blobstore using the user email as a key (id)
+        userkey = ndb.Key(MyUser, user.email())
+
+        if (userkey.get() == None):
+            NewUser = MyUser(id = user.email(), email = user.email(),update_rate = 'r_never')
+            NewUser.put()
+
+        # ThisUser = userkey.get()
+        # self.response.write(ThisUser.email)
+        # self.response.write(ThisUser.update_rate)
+
         name = user.nickname()
         template_values ={
             'name' : name,
