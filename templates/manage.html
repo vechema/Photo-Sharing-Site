@@ -7,5 +7,15 @@
 <body>
     {% include 'templates/header.html' %}
     Welcome {{name}}
+    <ul>Streams I own
+    {% for key in current_user.streams_own %}
+        <li><a href="/view?stream={{key.get().name}}">{{key.get().name}}</a></li>
+    {% endfor %}
+    </ul>
+    <ul>Streams I subscribe to
+    {% for key in current_user.streams_subscribe %}
+        <li><a href="/view?stream={{key.get().name}}">{{key.get().name}}</a></li>
+    {% endfor %}
+    </ul>
 </body>
 </html>

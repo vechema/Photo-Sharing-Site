@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    {% include 'templates/header.html' %}
+    {% for photo_url in photo_url_list %}
+        <br><img src="{{photo_url}}" style="width:128px;height:128px;"></br>
+    {% endfor %}
+
+</body>
+</html>

@@ -41,7 +41,7 @@ class Leaders(ndb.Model):
     champs = ndb.KeyProperty(repeated=True)
 
 class MyUser(ndb.Model):
-    streams_own = ndb.KeyProperty(repeated=True) #Going to hold stream names
+    streams_own = ndb.KeyProperty(repeated=True) #Going to hold stream keys
     streams_subscribe = ndb.KeyProperty(repeated=True) #Going to hold stream keys
     email = ndb.StringProperty()
     update_rate = ndb.StringProperty()
@@ -143,16 +143,61 @@ class ViewAHandler(webapp2.RequestHandler):
         for i in range(0,limit):
             photo_url_list.append(get_serving_url(pics[i].blob_key))
 
+        myuser = ndb.Key(MyUser, user.email()).get()
+
         template_values = {
             'stream' : stream,
             'upload_url' : upload_url,
             'photo_url_list' : photo_url_list,
+            'user' : myuser,
+            'stream_name' : stream.name,
         }
         template = JINJA_ENVIRONMENT.get_template('templates/viewa.html')
         self.response.write(template.render(template_values))
         self.response.write(stream.count)
         # for view in views:
         #     self.response.write(str(view) + '<br>')
+
+class MorePicsHandler(webapp2.RequestHandler):
+    def get(self):
+        stream_name = self.request.get('stream')
+        stream_query = Stream.query(Stream.name == stream_name)
+        streams = stream_query.fetch()
+        stream = streams[0]
+        photo_url_list = []
+        pics = stream.photos
+
+        for i in range(0,len(pics)):
+            photo_url_list.append(get_serving_url(pics[i].blob_key))
+
+        template_values = {
+            'photo_url_list' : photo_url_list,
+        }
+        template = JINJA_ENVIRONMENT.get_template('templates/morepics.html')
+        self.response.write(template.render(template_values))
+
+class SubscribeHandler(webapp2.RequestHandler):
+    def post(self):
+        stream_name = self.request.get('stream')
+        stream_query = Stream.query(Stream.name == stream_name)
+        streams = stream_query.fetch()
+        stream = streams[0]
+        #stream = ndb.Key(Stream, stream_name)
+
+        user = users.get_current_user()
+        userkey = ndb.Key(MyUser, user.email())
+
+        #confirm or create MyUser object
+        if (userkey.get() == None):
+            NewUser = MyUser(id = user.email(), email = user.email(),update_rate = 'never')
+            NewUser.put()
+
+        currentuser = userkey.get()
+        currentuser.streams_subscribe.append(stream.key)
+
+        currentuser.put()
+
+        self.redirect('/view?stream=' + stream_name)
 
 
 class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
@@ -216,6 +261,9 @@ class CreateHandler(webapp2.RequestHandler):
         if not user:
             self.redirect(users.create_login_url(self.request.uri))
             return
+
+
+
         template_values ={
         }
         template = JINJA_ENVIRONMENT.get_template('templates/create.html')
@@ -253,6 +301,7 @@ class CreateHandler(webapp2.RequestHandler):
         safe_name_url = urllib.quote_plus(stream_name)
         stream = Stream()
         stream.name=stream_name
+        stream.id = stream_name
         stream.name_safe=safe_name_url
         stream.subscribers=emails
         stream.tags=tag_list
@@ -260,7 +309,20 @@ class CreateHandler(webapp2.RequestHandler):
 
         stream.put()
 
+        #Need to set the user as the owner
+        user = users.get_current_user()
+        userkey = ndb.Key(MyUser, user.email())
+
+        if (userkey.get() == None):
+            NewUser = MyUser(id = user.email(), email = user.email(),update_rate = 'never')
+            NewUser.put()
+
+        user_owner = userkey.get()
+        user_owner.streams_own.append(stream.key)
+        user_owner.put()
+
         self.redirect('/manage')
+        #self.redirect('/' + user_owner.email)
 
 
 def sendSubscriptionEmails(emails, note, stream_url):
@@ -296,10 +358,11 @@ class ManageHandler(webapp2.RequestHandler):
         # ThisUser = userkey.get()
         # self.response.write(ThisUser.email)
         # self.response.write(ThisUser.update_rate)
-
+        current_user = userkey.get()
         name = user.nickname()
         template_values ={
             'name' : name,
+            'current_user' : current_user,
         }
         template = JINJA_ENVIRONMENT.get_template('templates/manage.html')
         self.response.write(template.render(template_values))
@@ -399,10 +462,33 @@ class PurgeHandler(webapp2.RequestHandler):
         except Exception, e:
  #           self.response.out.write('Error is: ' + repr(e) + '\n')
             pass
+
+        try:
+            user_query = MyUser.query()
+            users = user_query.fetch(400)
+            index = 0
+            if len(users) > 0:
+                for result in users:
+                    result.key.delete()
+                    index+=1
+
+            hour = datetime.datetime.now().time().hour
+            minute = datetime.datetime.now().time().minute
+            second = datetime.datetime.now().time().second
+            user_message = (str(index) + ' items deleted from MyUser at ' + str(hour) + ':' + str(minute) + ':' + str(second)+'\n\n')
+            if index == 400:
+                self.redirect("/purge")
+
+
+        except Exception, e:
+ #           self.response.out.write('Error is: ' + repr(e) + '\n')
+            pass
+
         template_values ={
             'blob_message' : blob_message,
             'stream_message' : stream_message,
             'pic_message' : pic_message,
+            'user_message' : user_message,
         }
         template = JINJA_ENVIRONMENT.get_template('templates/purge.html')
         self.response.write(template.render(template_values))
@@ -588,6 +674,8 @@ app = webapp2.WSGIApplication([
     ('/viewmore', ViewAMoreHandler),
     ('/upload_photo', PhotoUploadHandler),
     ('/view', ViewAHandler),
+    ('/morepics', MorePicsHandler),
+    ('/subscribe', SubscribeHandler),
     ('/create', CreateHandler),
     ('/manage', ManageHandler),
     ('/login', LoginHandler),

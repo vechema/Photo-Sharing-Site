@@ -11,6 +11,12 @@
     {% for photo_url in photo_url_list %}
         <br><img src="{{photo_url}}" style="width:128px;height:128px;"></br>
     {% endfor %}
+
+    <form action="/morepics" method="get">
+        <input type="hidden" name="stream" value="{{stream.name}}">
+        <input type="submit" value="More Pictures" name="morepics" />
+    </form>
+
     <h3>Add an image</h3>
     <form action="{{upload_url}}" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="stream" value="{{stream.name}}">
@@ -19,5 +25,12 @@
         <br><input type="file" name="file">
         <br><input type="submit" name="submit" value="Submit">
     </form>
+
+    {% if stream.key not in user.streams_subscribe %}
+    <form action="/subscribe" method="POST">
+        <input type="hidden" name="stream" value="{{stream.name}}">
+        <input type="submit" value="Subscribe" name="subscribe" />
+    </form>
+    {% endif %}
 </body>
 </html>
