@@ -5,4 +5,4 @@ cron:
 
 - description: send a trending report every five minutes to subscribers
   url: /sendfive
-  schedule: every 40 minutes
+  schedule: every 5 minutes
