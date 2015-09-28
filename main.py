@@ -413,18 +413,19 @@ class TrendingHandler(webapp2.RequestHandler):
         #Find current update rate
         #Check to make sure there is a user object
         user = users.get_current_user()
-        if not user:
-            self.redirect(users.create_login_url(self.request.uri))
-            return
+        if user:
 
-        #confirm or create MyUser object
-        userkey = ndb.Key(MyUser, user.email())
+            #confirm or create MyUser object
+            userkey = ndb.Key(MyUser, user.email())
 
-        if (userkey.get() == None):
-            NewUser = MyUser(id = user.email(), email = user.email(),update_rate = 'never')
-            NewUser.put()
+            if (userkey.get() == None):
+                NewUser = MyUser(id = user.email(), email = user.email(),update_rate = 'never')
+                NewUser.put()
 
-        currentrate = userkey.get().update_rate
+            currentrate = userkey.get().update_rate
+
+        else:
+            currentrate = 'N/A'
 
 
         #set already known key for leader information
