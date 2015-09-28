@@ -481,8 +481,21 @@ class SendFiveHandler(webapp2.RequestHandler):
         user_query = MyUser.query(MyUser.update_rate == 'every five minutes')
         users = user_query.fetch()
 
+        #test
+        # message = mail.EmailMessage()
+        # message.sender = 'andrew.c.stier@gmail.com'
+        # message.to = 'andrew.c.stier@gmail.com'
+        # message.body = """Check the new trends!"""
+        # message.send()
+
         for eachuser in users:
+            message = mail.EmailMessage()
+            message.subject = 'Your Connexus Update!'
+            message.sender = 'andrew.c.stier@gmail.com'
+            message.to = eachuser.email
             self.response.write(eachuser.email)
+            message.body = """Check out what's trending! http://apt2015mp.appspot.com/trending"""
+            message.send()
 
 app = webapp2.WSGIApplication([
     ('/allpics', AllPhotosHandler),
