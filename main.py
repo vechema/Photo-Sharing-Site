@@ -462,6 +462,24 @@ class TrendingHandler(webapp2.RequestHandler):
 
 class UpdateHandler(webapp2.RequestHandler):
     def get(self):
+        #purge all views over an hour old
+        allstreams = Stream.query()
+        for eachstream in allstreams:
+            views = eachstream.view_count
+            now = datetime.datetime.now()
+
+            hourback = now - datetime.timedelta(hours = 1)
+
+
+            for view in views:
+                if view<hourback:
+                    views.remove(view)
+
+            eachstream.view_count = views
+
+            eachstream.put()
+
+
         #find the leaders
         stream_query = Stream.query().order(-Stream.count)
         streams = stream_query.fetch(3)
