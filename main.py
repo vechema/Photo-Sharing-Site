@@ -161,8 +161,9 @@ class MorePicsHandler(webapp2.RequestHandler):
         photo_url_list = []
         pics = stream.photos
 
-        for i in range(0,len(pics)):
-            photo_url_list.append(get_serving_url(pics[i].blob_key))
+        if(len(pics) > 3):
+            for i in range(3,len(pics)):
+                photo_url_list.append(get_serving_url(pics[i].blob_key))
 
         template_values = {
             'photo_url_list' : photo_url_list,
