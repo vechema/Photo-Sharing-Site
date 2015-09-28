@@ -7,34 +7,42 @@
 <body>
     {% include 'templates/header.html' %}
     <h4>View All Streams</h4>
+    <table>
+        <tr>
     {% for stream in streams %}
-        <a href="/view?stream={{stream.name_safe}}">
+        {% if loop.index0 is divisibleby 3 %}
+            </tr>
+            <tr>
+        {% endif %}
+        <td><a href="/view?stream={{stream.name_safe}}">
             <img src="{{stream.cover_url}}" style="width:128px;height:128px;">
         </a>
-        <br>{{stream.name}}
-        <ul id="categories">
-            <li>subscribers
-                <ul id="emaillist">
-                {% for email in stream.subscribers %}
-                    <li>{{email}}</li>
-                {% endfor %}
-                </ul>
-            </li>
-            <li>tags
-                <ul id="taglist">
-                {% for tag in stream.tags %}
-                    <li>{{tag}}</li>
-                {% endfor %}
-                </ul>
-            </li>
-            <li>photos
-                <ul id="photolist">
-                {% for photo in stream.photos %}
-                    <li>{{photo.name}}</li>
-                {% endfor %}
-                </ul>
-            </li>
-        </ul>
+        <br>{{stream.name}}</td>
+        <!--<ul id="categories">-->
+            <!--<li>subscribers-->
+                <!--<ul id="emaillist">-->
+                <!--{% for email in stream.subscribers %}-->
+                    <!--<li>{{email}}</li>-->
+                <!--{% endfor %}-->
+                <!--</ul>-->
+            <!--</li>-->
+            <!--<li>tags-->
+                <!--<ul id="taglist">-->
+                <!--{% for tag in stream.tags %}-->
+                    <!--<li>{{tag}}</li>-->
+                <!--{% endfor %}-->
+                <!--</ul>-->
+            <!--</li>-->
+            <!--<li>photos-->
+                <!--<ul id="photolist">-->
+                <!--{% for photo in stream.photos %}-->
+                    <!--<li>{{photo.name}}</li>-->
+                <!--{% endfor %}-->
+                <!--</ul>-->
+            <!--</li>-->
+        <!--</ul>-->
     {% endfor %}
+        </tr>
+    </table>
 </body>
 </html>

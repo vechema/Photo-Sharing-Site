@@ -3,17 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <title>{{stream.name}}</title>
+
 </head>
 <body>
     {% include 'templates/header.html' %}
     <h3>{{stream.name}}</h3>
 
+    <table>
+        <tr>
     {% for photo_url in photo_url_list %}
-        <br><img src="{{photo_url}}" style="width:128px;height:128px;"></br>
+        {% if loop.index0 is divisibleby 3 %}
+            </tr>
+            <tr>
+        {% endif %}
+        <td><img src="{{photo_url}}" style="width:128px;height:128px;"></td>
     {% endfor %}
+        </tr>
+    </table>
 
-    <form action="/morepics" method="get">
+    <!--<form action="/morepics" method="get">-->
+    <form action="/view?stream={{stream.name}}" method="get">
         <input type="hidden" name="stream" value="{{stream.name}}">
+        <input type="hidden" name="viewall" value="True">
         <input type="submit" value="More Pictures" name="morepics" />
     </form>
 

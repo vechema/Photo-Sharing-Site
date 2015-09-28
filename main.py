@@ -81,6 +81,7 @@ class ViewAllHandler(webapp2.RequestHandler):
 class ViewAHandler(webapp2.RequestHandler):
     def get(self):
         stream_name = self.request.get('stream')
+        viewall = self.request.get('viewall')
 
         stream_query = Stream.query(Stream.name == stream_name)
         streams = stream_query.fetch()
@@ -131,8 +132,9 @@ class ViewAHandler(webapp2.RequestHandler):
         pics = stream.photos
         hard_limit = 3
         limit = len(pics)
-        if limit > hard_limit:
-            limit = hard_limit
+        if not viewall:
+            if limit > hard_limit:
+                limit = hard_limit
 
         for i in range(0,limit):
             photo_url_list.append(get_serving_url(pics[i].blob_key))
