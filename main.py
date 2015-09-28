@@ -76,14 +76,6 @@ class ViewAllHandler(webapp2.RequestHandler):
         self.response.write(template.render(template_values))
 
 
-class ViewAMoreHandler(webapp2.RequestHandler):
-    def get(self):
-        template_values ={
-        }
-        template = JINJA_ENVIRONMENT.get_template('templates/viewamore.html')
-        self.response.write(template.render(template_values))
-
-
 class ViewAHandler(webapp2.RequestHandler):
     def get(self):
         stream_name = self.request.get('stream')
@@ -672,7 +664,6 @@ app = webapp2.WSGIApplication([
     ('/allpics', AllPhotosHandler),
     ('/error', ErrorHandler),
     ('/viewall', ViewAllHandler),
-    ('/viewmore', ViewAMoreHandler),
     ('/upload_photo', PhotoUploadHandler),
     ('/view', ViewAHandler),
     ('/morepics', MorePicsHandler),
