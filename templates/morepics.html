@@ -10,5 +10,10 @@
         <br><img src="{{photo_url}}" style="width:128px;height:128px;"></br>
     {% endfor %}
 
+    <form action="/view?stream={{stream_name}}" method="get">
+        <input type="submit" value="Back"/>
+        <input type="hidden" value="{{stream_name}}" name="stream">
+    </form>
+
 </body>
 </html>

@@ -172,6 +172,7 @@ class MorePicsHandler(webapp2.RequestHandler):
 
         template_values = {
             'photo_url_list' : photo_url_list,
+            'stream_name' : stream_name
         }
         template = JINJA_ENVIRONMENT.get_template('templates/morepics.html')
         self.response.write(template.render(template_values))
