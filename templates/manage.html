@@ -3,19 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <title>Manage Streams</title>
+
+    <style type="text/css">
+    table.gridtable {
+        font-family: verdana,arial,sans-serif;
+        font-size:11px;
+        color:#333333;
+        border-width: 1px;
+        border-color: #666666;
+        border-collapse: collapse;
+    }
+    table.gridtable th {
+        border-width: 1px;
+        padding: 8px;
+        border-style: solid;
+        border-color: #666666;
+        background-color: #dedede;
+    }
+    table.gridtable td {
+        border-width: 1px;
+        padding: 8px;
+        border-style: solid;
+        border-color: #666666;
+        background-color: #ffffff;
+    }
+    </style>
+
+
+
 </head>
 <body>
     {% include 'templates/header.html' %}
-    Welcome {{name}}
-    <ul>Streams I own
+    <h2>Welcome {{name}}</h2>
+    <br><table class="gridtable"><h4>Streams I own</h4>
+        <tr>
+            <th>Name</th>
+            <th>Last New Picture</th>
+            <th>Number of Pictures</th>
+            <th>Delete</th>
+        </tr>
     {% for key in current_user.streams_own %}
-        <li><a href="/view?stream={{key.get().name}}">{{key.get().name}}</a></li>
+        <tr>
+            <td><a href="/view?stream={{key.get().name}}">{{key.get().name}}</a></td>
+            <td>{{key.get().update_date}}</td>
+        </tr>
     {% endfor %}
-    </ul>
-    <ul>Streams I subscribe to
+    </table>
+    <br><table class="gridtable"><h4>Streams I subscribe to</h4>
+        <tr>
+            <th>Name</th>
+            <th>Last New Picture</th>
+            <th>Number of Pictures</th>
+            <th>Views</th>
+            <th>Unsubscribe</th>
+        </tr>
     {% for key in current_user.streams_subscribe %}
-        <li><a href="/view?stream={{key.get().name}}">{{key.get().name}}</a></li>
+        <tr>
+            <td><a href="/view?stream={{key.get().name}}">{{key.get().name}}</a></td>
+            <td>{{key.get().update_date}}</td>
+            <td>{{key.get().num_pics}}</td>
+        </tr>
     {% endfor %}
-    </ul>
+    </table>
 </body>
 </html>
