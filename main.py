@@ -681,6 +681,13 @@ class SendDayHandler(webapp2.RequestHandler):
             message.body = """Check out what's trending! http://apt2015mp.appspot.com/trending"""
             message.send()
 
+class SearchHandler(webapp2.RequestHandler):
+    def get(self):
+        template_values ={}
+        template = JINJA_ENVIRONMENT.get_template('templates/search.html')
+        self.response.write(template.render(template_values))
+
+
 app = webapp2.WSGIApplication([
     ('/allpics', AllPhotosHandler),
     ('/error', ErrorHandler),
@@ -696,6 +703,7 @@ app = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/purge', PurgeHandler),
     ('/trending', TrendingHandler),
+    ('/search', SearchHandler),
     ('/update', UpdateHandler),
     ('/sendfive', SendFiveHandler),
     ('/sendhour', SendHourHandler),
