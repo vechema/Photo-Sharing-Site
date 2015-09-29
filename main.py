@@ -100,6 +100,14 @@ def create_dummy():
     non_user.put()
 
 
+def format_email(email):
+    email = email.lower()
+    index = email.index('@')
+    email_front = email[:index]
+    email_front_format = email_front.replace('.','')
+    return email_front_format + email[index:]
+
+
 class ViewAHandler(webapp2.RequestHandler):
     def get(self):
         stream_name = self.request.get('stream')
@@ -126,11 +134,12 @@ class ViewAHandler(webapp2.RequestHandler):
                 create_dummy()
         # If the user is signed it, check that this is not one of their streams
         else:
-            user_key = ndb.Key(MyUser, user.email().lower())
+            user_email = format_email(user.email())
+            user_key = ndb.Key(MyUser, user_email)
 
             # confirm or create MyUser object
             if (user_key.get() == None):
-                NewUser = MyUser(id = user.email().lower(), email = user.email().lower(),update_rate = 'never')
+                NewUser = MyUser(id = user_email, email = user_email,update_rate = 'never')
                 NewUser.put()
 
             currentuser = user_key.get()
@@ -167,7 +176,8 @@ class ViewAHandler(webapp2.RequestHandler):
         if not user:
             my_user = ndb.Key(MyUser, 'dummy').get()
         else:
-            my_user = ndb.Key(MyUser, user.email().lower()).get()
+            user_email = format_email(user.email())
+            my_user = ndb.Key(MyUser, user_email).get()
 
         view_all = self.request.get('viewall')
 
@@ -215,11 +225,12 @@ class SubscribeHandler(webapp2.RequestHandler):
         # stream = ndb.Key(Stream, stream_name)
 
         user = users.get_current_user()
-        userkey = ndb.Key(MyUser, user.email().lower())
+        user_email = format_email(user.email())
+        userkey = ndb.Key(MyUser, user_email)
 
         # confirm or create MyUser object
         if (userkey.get() == None):
-            NewUser = MyUser(id = user.email().lower(), email = user.email().lower(),update_rate = 'never')
+            NewUser = MyUser(id = user_email, email = user_email,update_rate = 'never')
             NewUser.put()
 
         currentuser = userkey.get()
@@ -235,7 +246,8 @@ class UnsubscribeHandler(webapp2.RequestHandler):
         stream_names = self.request.get_all('stream_name')
 
         user = users.get_current_user()
-        cur_user = ndb.Key(MyUser, user.email().lower()).get()
+        user_email = format_email(user.email())
+        cur_user = ndb.Key(MyUser, user_email).get()
 
         subs_to_remove = []
         for sub in cur_user.streams_subscribe:
@@ -263,7 +275,8 @@ class DeleteHandler(webapp2.RequestHandler):
 
         # Delete it in MyUser.streams_own
         user = users.get_current_user()
-        cur_user = ndb.Key(MyUser, user.email().lower()).get()
+        user_email = format_email(user.email())
+        cur_user = ndb.Key(MyUser, user_email).get()
 
         owns_to_remove = []
         for owned in cur_user.streams_own:
@@ -431,13 +444,16 @@ class CreateHandler(webapp2.RequestHandler):
         if emails[0] != "":
             for sub_email in emails:
                 sub_email_use = sub_email.replace(' ', '')
-                subscriber_key = ndb.Key(MyUser, sub_email_use.lower())
+                user_email = format_email(sub_email_use)
+                subscriber_key = ndb.Key(MyUser, user_email)
                 if subscriber_key.get() is None:
-                    new_user = MyUser(id = sub_email_use.lower(), email = sub_email_use.lower(),update_rate = 'never')
+                    new_user = MyUser(id = user_email, email = user_email,update_rate = 'never')
                     new_user.put()
 
                 user_sub = subscriber_key.get()
-                if users.get_current_user().email().lower() != user_sub.email.lower():
+                user_sub_email = format_email(user_sub.email)
+                user_email = format_email(users.get_current_user().email())
+                if user_email != user_sub_email:
                     user_sub.streams_subscribe.append(stream.key)
                 user_sub.put()
                 self.response.write('<br>' +user_sub.email)
@@ -445,20 +461,21 @@ class CreateHandler(webapp2.RequestHandler):
 
         #Need to set the user as the owner
         user = users.get_current_user()
-        userkey = ndb.Key(MyUser, user.email().lower())
+        user_email = format_email(user.email())
+        userkey = ndb.Key(MyUser, user_email)
 
         if (userkey.get() == None):
-            NewUser = MyUser(id = user.email().lower(), email = user.email().lower(),update_rate = 'never')
+            NewUser = MyUser(id = user_email, email = user_email,update_rate = 'never')
             NewUser.put()
 
         user_owner = userkey.get()
         user_owner.streams_own.append(stream.key)
         user_owner.put()
-        self.response.write('<br>' +user.email())
         self.response.write('<br>' +user_owner.email)
+        self.response.write('<br>' +user.email())
 
         #self.redirect('/' + garb)
-        self.redirect('/manage')
+        #self.redirect('/manage')
         #self.redirect('/' + user_owner.email)
 
 
@@ -483,16 +500,17 @@ def sendSubscriptionEmails(emails, note, stream_url):
 class ManageHandler(webapp2.RequestHandler):
     def get(self):
         user = users.get_current_user()
+        user_email = format_email(user.email())
         if not user:
             self.redirect(users.create_login_url(self.request.uri))
             return
 
         #confirm or create MyUser object
         #MyUser instances are stored in blobstore using the user email as a key (id)
-        userkey = ndb.Key(MyUser, user.email().lower())
+        userkey = ndb.Key(MyUser, user_email)
 
         if userkey.get() is None:
-            NewUser = MyUser(id = user.email().lower(), email = user.email().lower(),update_rate = 'never')
+            NewUser = MyUser(id = user_email, email = user_email,update_rate = 'never')
             NewUser.put()
 
         # ThisUser = userkey.get()
@@ -660,13 +678,14 @@ class TrendingHandler(webapp2.RequestHandler):
         #Find current update rate
         #Check to make sure there is a user object
         user = users.get_current_user()
+        user_email = format_email(user.email())
         if user:
 
             #confirm or create MyUser object
-            userkey = ndb.Key(MyUser, user.email().lower())
+            userkey = ndb.Key(MyUser, user_email)
 
             if (userkey.get() == None):
-                NewUser = MyUser(id = user.email().lower(), email = user.email().lower(),update_rate = 'never')
+                NewUser = MyUser(id = user_email, email = user_email,update_rate = 'never')
                 NewUser.put()
 
             currentrate = userkey.get().update_rate
@@ -708,16 +727,17 @@ class TrendingHandler(webapp2.RequestHandler):
 
         #Check to make sure there is a user object
         user = users.get_current_user()
+        user_email = format_email(user.email())
         if not user:
             self.redirect(users.create_login_url(self.request.uri))
             return
 
         #confirm or create MyUser object
         #MyUser instances are stored in blobstore using the user email as a key (id)
-        userkey = ndb.Key(MyUser, user.email().lower())
+        userkey = ndb.Key(MyUser, user_email)
 
         if (userkey.get() == None):
-            NewUser = MyUser(id = user.email().lower(), email = user.email().lower(),update_rate = 'never')
+            NewUser = MyUser(id = user_email, email = user_email,update_rate = 'never')
             NewUser.put()
 
         #update rate of currentuser
