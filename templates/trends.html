@@ -7,35 +7,17 @@
 <body>
     {% include 'templates/header.html' %}
     <h2>Top 3 Trending Streams</h2>
-    <h3>Email Trending Report</h3>
-    Your current update rate is <b><u>{{ current_rate }}</u></b>.
-    <br>
-    <br>
-    <form method="post">
-         <input type="radio" name="rate" value="never" checked>No reports
-        <br>
-         <input type="radio" name="rate" value="every five minutes">Every 5 minutes
-        <br>
-         <input type="radio" name="rate" value="every hour">Every hour
-        <br>
-         <input type="radio" name="rate" value="every day">Every day
-        <br><br>
-        <input type="submit" value="Update Rate">
-    </form>
+
     <h3>Current Leaders</h3>
 
 
     <table>
         <tr>
     {% for stream in streams %}
-        {% if loop.index0 is divisibleby 3 %}
-            </tr>
-            <tr>
-        {% endif %}
         <td><a href="/view?stream={{stream.name_safe}}">
             <img src="{{stream.cover_url}}" style="width:128px;height:128px;">
         </a>
-        <br>{{stream.name}}<br>Views: {{stream.count}}</td>
+        <br>{{stream.name}}<br>{{stream.count}} views in past hour</td>
         <!--<ul id="categories">-->
             <!--<li>subscribers-->
                 <!--<ul id="emaillist">-->
@@ -60,6 +42,21 @@
             <!--</li>-->
         <!--</ul>-->
     {% endfor %}
+        <td>
+            <h3>Email Trending Report</h3>
+            Your current update rate is <b><u>{{ current_rate }}</u></b>.
+            <form method="post">
+                 <input type="radio" name="rate" value="never" checked>No reports
+                <br>
+                 <input type="radio" name="rate" value="every five minutes">Every 5 minutes
+                <br>
+                 <input type="radio" name="rate" value="every hour">Every hour
+                <br>
+                 <input type="radio" name="rate" value="every day">Every day
+                <br><br>
+                <input type="submit" value="Update Rate">
+            </form>
+        </td>
         </tr>
     </table>
 </body>
