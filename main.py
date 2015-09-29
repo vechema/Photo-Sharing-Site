@@ -4,6 +4,7 @@ import urllib
 import jinja2
 import datetime
 import cgi
+import re
 
 from google.appengine.api import users
 from google.appengine.ext import ndb
@@ -389,7 +390,8 @@ class CreateHandler(webapp2.RequestHandler):
             return
 
         #get the emails and then send 'em
-        emails = self.request.get('subscribers').split(",")
+        #emails = re.split(",| ",self.request.get('subscribers'))
+        emails = self.request.get('subscribers').replace(" ","").split(",")
         email_message = self.request.get('message')
         #Need to change this to the actual url of the stream
         stream_url = "http://apt2015mini.appspot.com/view?stream=" + urllib.quote_plus(stream_name)
@@ -461,7 +463,10 @@ def sendSubscriptionEmails(emails, note, stream_url):
             message.to = email
             message.body = note + """
 
-            This message was sent by """ + stream_url
+            This message was sent by """ + stream_url + """
+
+            -Jo Egner and Andrew Stier
+            """
 
             message.send()
 
@@ -496,7 +501,7 @@ class ManageHandler(webapp2.RequestHandler):
 
 class MainPage(webapp2.RequestHandler):
     def get(self):
-        self.redirect('/manage')
+        self.redirect('/viewall')
 
 
 class LoginHandler(webapp2.RequestHandler):
