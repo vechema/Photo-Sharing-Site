@@ -879,10 +879,12 @@ class SearchResultsHandler(webapp2.RequestHandler):
                                                 Stream.tags == eachquery))
             #allstreams = allstreams + streams
 
-        allstreams = stream_query.order(-Stream.creation_date).fetch()
-
+        allstreams = stream_query.order(-Stream.creation_date).fetch(5)
+        result_count = len(allstreams)
         template_values ={
-            'streams' : allstreams
+            'streams' : allstreams,
+            'count' : result_count,
+            'query' : self.request.get('thequery'),
         }
         template = JINJA_ENVIRONMENT.get_template('templates/results.html')
         self.response.write(template.render(template_values))

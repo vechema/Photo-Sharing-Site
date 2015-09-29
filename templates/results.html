@@ -4,10 +4,19 @@
     <meta charset="UTF-8">
 </head>
 <body>
+
+{% if count > 4 %}
+    There are <b>5</b> or more results for <b>{{ query }}</b>,
+{% else %}
+    There are <b>{{ count }}</b> results for <b>{{ query }}</b>,
+{% endif %}
+<br>
+     click on an image to view stream
+<br>
     <table>
         <tr>
     {% for stream in streams %}
-        {% if loop.index0 is divisibleby 3 %}
+        {% if loop.index0 is divisibleby 5 %}
             </tr>
             <tr>
         {% endif %}
