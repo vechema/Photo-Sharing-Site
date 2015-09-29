@@ -288,10 +288,8 @@ class DeleteHandler(webapp2.RequestHandler):
             stream = streams[0]
 
             # Trying to delete the picture but only delete it being held in a stream
-            #for pic in stream.photos:
+            # for pic in stream.photos:
             #    pic.key.delete()
-            #stream.photos = []
-            #stream.put()
 
             #stream deleted
             stream.key.delete()
