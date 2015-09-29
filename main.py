@@ -68,6 +68,8 @@ class ErrorHandler(webapp2.RequestHandler):
             message = "You tried to add an image without selecting a file"
         elif error_code == "nosubscribe":
             message = 'You cannot subscribe unless you are <a href="/login">logged</a> in'
+        elif error_code == "streamnamecontents":
+            message = 'Stream names must be alphanumeric, space, or underscores'
 
         template_values ={
             'message' : message
@@ -384,6 +386,10 @@ class CreateHandler(webapp2.RequestHandler):
     def post(self):
         #Get the name of the stream
         stream_name = self.request.get('streamname')
+        if re.match('^[\w\s]+$', stream_name) is None:
+        #if re.match('([^\s\w]|_)+', stream_name) is None:
+            self.redirect('/error?message=streamnamecontents')
+            return
         if len(stream_name) == 0:
             self.redirect('/error?message=streamnamelen')
             return
