@@ -150,12 +150,16 @@ class ViewAHandler(webapp2.RequestHandler):
 
         myuser = ndb.Key(MyUser, user.email()).get()
 
+        view_all = self.request.get('viewall')
+
         template_values = {
             'stream' : stream,
             'upload_url' : upload_url,
             'photo_url_list' : photo_url_list,
             'user' : myuser,
             'stream_name' : stream.name,
+            'num_pics' : len(pics),
+            'view_all' : view_all,
         }
         template = JINJA_ENVIRONMENT.get_template('templates/viewa.html')
         self.response.write(template.render(template_values))
