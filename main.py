@@ -833,6 +833,47 @@ class SearchHandler(webapp2.RequestHandler):
             self.response.write(stream.name)
             self.response.write('<br>')
 
+class SearchHandler(webapp2.RequestHandler):
+    def get(self):
+
+        template_values ={}
+        template = JINJA_ENVIRONMENT.get_template('templates/search.html')
+        self.response.write(template.render(template_values))
+
+
+        # query_list = self.request.get('thequery').replace(',', '').split(" ")
+        # allstreams = []
+        # for eachquery in query_list:
+        #     stream_query = Stream.query(ndb.OR(Stream.name == eachquery,
+        #                                     Stream.tags == eachquery))
+        #     streams = stream_query.fetch()
+        #     allstreams = allstreams + streams
+        #
+        # for stream in allstreams:
+        #     self.response.write(stream.name)
+        #     self.response.write('<br>')
+
+class SearchResultsHandler(webapp2.RequestHandler):
+    def get(self):
+
+        template_values ={}
+        template = JINJA_ENVIRONMENT.get_template('templates/search.html')
+        self.response.write(template.render(template_values))
+
+
+        query_list = self.request.get('thequery').replace(',', '').split(" ")
+        allstreams = []
+        for eachquery in query_list:
+            stream_query = Stream.query(ndb.OR(Stream.name == eachquery,
+                                            Stream.tags == eachquery))
+            streams = stream_query.fetch()
+            allstreams = allstreams + streams
+
+        for stream in allstreams:
+            self.response.write(stream.name)
+            self.response.write('<br>')
+
+
 
 
 
@@ -853,6 +894,7 @@ app = webapp2.WSGIApplication([
     ('/purge', PurgeHandler),
     ('/trending', TrendingHandler),
     ('/search', SearchHandler),
+    ('/searchresults', SearchResultsHandler),
     ('/update', UpdateHandler),
     ('/sendfive', SendFiveHandler),
     ('/sendhour', SendHourHandler),
