@@ -425,7 +425,8 @@ class CreateHandler(webapp2.RequestHandler):
                     NewUser.put()
 
                 user_sub = subscriber_key.get()
-                user_sub.streams_subscribe.append(stream.key)
+                if users.get_current_user().email().lower() != user_sub.email.lower():
+                    user_sub.streams_subscribe.append(stream.key)
                 user_sub.put()
                 self.response.write('<br>' +user_sub.email)
                 self.response.write('<br>' +sub_email)
