@@ -18,6 +18,9 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
 
+admin_email = "vechema@gmail.com"
+app_url = "http://apt2015mini.appspot.com/trending"
+
 class Picture(ndb.Model):
     name = ndb.StringProperty()
     comment = ndb.StringProperty()
@@ -672,19 +675,19 @@ class TrendingHandler(webapp2.RequestHandler):
 
         #check to see if leader information is available yet
         if(thekey.get()==None):
-            return
+            leaders = []
 
-        #GETS THE LEADERS FROM THE DATASTORE
-        leads_retrieved = thekey.get()
+        else:
+            #GETS THE LEADERS FROM THE DATASTORE
+            leads_retrieved = thekey.get()
 
-        #testing
-        # self.response.write(leads_retrieved.key)
+            #testing
+            # self.response.write(leads_retrieved.key)
+            leaders = []
 
-        leaders = []
-
-        # prints the leaders
-        for champ in leads_retrieved.champs:
-            leaders.append(champ.get())
+            # prints the leaders
+            for champ in leads_retrieved.champs:
+                leaders.append(champ.get())
 
 
         template_values ={
@@ -770,10 +773,10 @@ class SendFiveHandler(webapp2.RequestHandler):
         for eachuser in users:
             message = mail.EmailMessage()
             message.subject = 'Your Connexus Update!'
-            message.sender = 'andrew.c.stier@gmail.com'
+            message.sender = admin_email
             message.to = eachuser.email
             self.response.write(eachuser.email)
-            message.body = """Check out what's trending! http://apt2015mp.appspot.com/trending"""
+            message.body = """Check out what's trending! """ + app_url
             message.send()
 
 class SendHourHandler(webapp2.RequestHandler):
@@ -792,10 +795,10 @@ class SendHourHandler(webapp2.RequestHandler):
         for eachuser in users:
             message = mail.EmailMessage()
             message.subject = 'Your Connexus Update!'
-            message.sender = 'andrew.c.stier@gmail.com'
+            message.sender = admin_email
             message.to = eachuser.email
             self.response.write(eachuser.email)
-            message.body = """Check out what's trending! http://apt2015mp.appspot.com/trending"""
+            message.body = """Check out what's trending! """ + app_url
             message.send()
 
 class SendDayHandler(webapp2.RequestHandler):
@@ -814,10 +817,10 @@ class SendDayHandler(webapp2.RequestHandler):
         for eachuser in users:
             message = mail.EmailMessage()
             message.subject = 'Your Connexus Update!'
-            message.sender = 'andrew.c.stier@gmail.com'
+            message.sender = admin_email
             message.to = eachuser.email
             self.response.write(eachuser.email)
-            message.body = """Check out what's trending! http://apt2015mp.appspot.com/trending"""
+            message.body = """Check out what's trending! """ + app_url
             message.send()
 
 class SearchHandler(webapp2.RequestHandler):
