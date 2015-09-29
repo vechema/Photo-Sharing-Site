@@ -769,6 +769,21 @@ class SearchHandler(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('templates/search.html')
         self.response.write(template.render(template_values))
 
+    def post(self):
+        query_list = self.request.get('thequery').replace(',', '').split(" ")
+        allstreams = []
+        for eachquery in query_list:
+            stream_query = Stream.query(ndb.OR(Stream.name == eachquery,
+                                            Stream.tags == eachquery))
+            streams = stream_query.fetch()
+            allstreams = allstreams + streams
+
+        for stream in allstreams:
+            self.response.write(stream.name)
+            self.response.write('<br>')
+
+
+
 
 app = webapp2.WSGIApplication([
     ('/allpics', AllPhotosHandler),
