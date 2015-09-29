@@ -66,6 +66,8 @@ class ErrorHandler(webapp2.RequestHandler):
             message = "Yeah, we didn't implement social"
         elif error_code == "nofile":
             message = "You tried to add an image without selecting a file"
+        elif error_code == "nosubscribe":
+            message = 'You cannot subscribe unless you are <a href="/login">logged</a> in'
 
         template_values ={
             'message' : message

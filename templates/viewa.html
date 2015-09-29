@@ -53,5 +53,12 @@
     {% endif %}
     {% endif %}
     {% endif %}
+
+    {% if user.email == 'dummy'%}
+    <form action="/error" method="get">
+        <input type="hidden" name="message" value="nosubscribe">
+        <input type="submit" value="Subscribe" name="subscribe" />
+    </form>
+    {% endif %}
 </body>
 </html>
