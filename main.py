@@ -876,7 +876,7 @@ class SearchResultsHandler(webapp2.RequestHandler):
                                                 Stream.tags == eachquery))
             #allstreams = allstreams + streams
 
-        allstreams = stream_query.fetch()
+        allstreams = stream_query.order(-Stream.creation_date).fetch()
 
         template_values ={
             'streams' : allstreams
