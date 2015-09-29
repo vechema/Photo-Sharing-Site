@@ -872,16 +872,20 @@ class SearchResultsHandler(webapp2.RequestHandler):
 
 
         query_list = self.request.get('thequery').replace(',', '').split(" ")
-        allstreams = []
+        #allstreams = []
+        stream_query = Stream.query()
         for eachquery in query_list:
-            stream_query = Stream.query(ndb.OR(Stream.name == eachquery,
-                                            Stream.tags == eachquery))
-            streams = stream_query.fetch()
-            allstreams = allstreams + streams
+            stream_query = stream_query.filter(ndb.OR(Stream.name == eachquery,
+                                                Stream.tags == eachquery))
+            #allstreams = allstreams + streams
 
-        for stream in allstreams:
-            self.response.write(stream.name)
-            self.response.write('<br>')
+        allstreams = stream_query.fetch()
+
+        template_values ={
+            'streams' : allstreams
+        }
+        template = JINJA_ENVIRONMENT.get_template('templates/results.html')
+        self.response.write(template.render(template_values))
 
 
 
