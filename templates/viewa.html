@@ -9,25 +9,31 @@
     {% include 'templates/header.html' %}
     <h3>{{stream.name}}</h3>
 
+    {%set count = 0%}
     <table>
         <tr>
+
     {% for photo_url in photo_url_list %}
         {% if loop.index0 is divisibleby 3 %}
             </tr>
             <tr>
         {% endif %}
         <td><img src="{{photo_url}}" style="width:128px;height:128px;"></td>
+        {% set count = count + 1%}
     {% endfor %}
         </tr>
     </table>
 
+    {%if count > 2 %}
     <!--<form action="/morepics" method="get">-->
     <form action="/view?stream={{stream.name}}" method="get">
         <input type="hidden" name="stream" value="{{stream.name}}">
         <input type="hidden" name="viewall" value="True">
         <input type="submit" value="More Pictures" name="morepics" />
     </form>
+    {% endif%}
 
+    {% if stream.key in user.streams_own %}
     <h3>Add an image</h3>
     <form action="{{upload_url}}" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="stream" value="{{stream.name}}">
@@ -36,6 +42,7 @@
         <br><input type="file" name="file">
         <br><input type="submit" name="submit" value="Submit">
     </form>
+    {% endif %}
 
     {% if stream.key not in user.streams_subscribe %}
     <form action="/subscribe" method="POST">

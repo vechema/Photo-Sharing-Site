@@ -57,6 +57,12 @@ class ErrorHandler(webapp2.RequestHandler):
                       "an existing stream; operation did not complete"
         elif error_code == "streamnamelen":
             message = "You tried to create a stream without a name"
+        elif error_code == "nosuchstream":
+            message = "You tried to view a stream that doesn't exist"
+        elif error_code == "social":
+            message = "Yeah, we didn't implement social"
+        elif error_code == "nofile":
+            message = "You tried to add an image without selecting a file"
 
         template_values ={
             'message' : message
@@ -85,6 +91,9 @@ class ViewAHandler(webapp2.RequestHandler):
 
         stream_query = Stream.query(Stream.name == stream_name)
         streams = stream_query.fetch()
+        if len(streams) == 0:
+            self.redirect('/error?message=nosuchstream')
+            return
         stream = streams[0]
 
         #add the current date and time to the stream's view_count list if viewer is not stream owner
@@ -289,10 +298,12 @@ class DeleteHandler(webapp2.RequestHandler):
 class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
     def post(self):
         try:
+
+            if len(self.get_uploads()) == 0:
+                self.redirect('/error?message=nofile')
+                return
             #Get the blob_key
             upload = self.get_uploads()[0]
-
-            garbage = self.get_uploads()
 
             #Get stream, name & comments
             photo_name = self.request.get('file_name')
@@ -348,8 +359,6 @@ class CreateHandler(webapp2.RequestHandler):
         if not user:
             self.redirect(users.create_login_url(self.request.uri))
             return
-
-
 
         template_values ={
         }
