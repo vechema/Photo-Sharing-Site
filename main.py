@@ -21,6 +21,7 @@ JINJA_ENVIRONMENT = jinja2.Environment(
 admin_email = "vechema@gmail.com"
 app_url = "http://apt2015mini.appspot.com/trending"
 
+
 class Picture(ndb.Model):
     name = ndb.StringProperty()
     comment = ndb.StringProperty()
@@ -42,12 +43,14 @@ class Stream(ndb.Model):
     view_count = ndb.DateTimeProperty(repeated=True)
     count = ndb.ComputedProperty(lambda e: len(e.view_count))
 
+
 class Leaders(ndb.Model):
     champs = ndb.KeyProperty(repeated=True)
 
+
 class MyUser(ndb.Model):
-    streams_own = ndb.KeyProperty(repeated=True) #Going to hold stream keys
-    streams_subscribe = ndb.KeyProperty(repeated=True) #Going to hold stream keys
+    streams_own = ndb.KeyProperty(repeated=True)  # Going to hold stream keys
+    streams_subscribe = ndb.KeyProperty(repeated=True)  # Going to hold stream keys
     email = ndb.StringProperty()
     update_rate = ndb.StringProperty()
 
@@ -70,9 +73,11 @@ class ErrorHandler(webapp2.RequestHandler):
             message = 'You cannot subscribe unless you are <a href="/login">logged</a> in'
         elif error_code == "streamnamecontents":
             message = 'Stream names must be alphanumeric, space, or underscores'
+        else:
+            message = 'Error'
 
-        template_values ={
-            'message' : message
+        template_values = {
+            'message': message,
         }
         template = JINJA_ENVIRONMENT.get_template('templates/error.html')
         self.response.write(template.render(template_values))
@@ -80,19 +85,20 @@ class ErrorHandler(webapp2.RequestHandler):
 
 class ViewAllHandler(webapp2.RequestHandler):
     def get(self):
-        stream_names = []
         stream_query = Stream.query().order(-Stream.creation_date)
         streams = stream_query.fetch(400)
 
-        template_values ={
-            'streams' : streams
+        template_values = {
+            'streams': streams
         }
         template = JINJA_ENVIRONMENT.get_template('templates/viewall.html')
         self.response.write(template.render(template_values))
 
+
 def create_dummy():
-    nonUser = MyUser(id = 'dummy', email = 'dummy', update_rate='never')
-    nonUser.put()
+    non_user = MyUser(id='dummy', email='dummy', update_rate='never')
+    non_user.put()
+
 
 class ViewAHandler(webapp2.RequestHandler):
     def get(self):
@@ -106,36 +112,36 @@ class ViewAHandler(webapp2.RequestHandler):
             return
         stream = streams[0]
 
-        #add the current date and time to the stream's view_count list if viewer is not stream owner
+        # add the current date and time to the stream's view_count list if viewer is not stream owner
         views = stream.view_count
         now = datetime.datetime.now()
 
-        #Check that the user is not the one viewing the stream
-        #If the user is not signed in, it counts as a view
+        # Check that the user is not the one viewing the stream
+        # If the user is not signed in, it counts as a view
         user = users.get_current_user()
         if not user:
             views.append(now)
-            userkey = ndb.Key(MyUser, 'dummy')
-            if(userkey.get() == None):
+            user_key = ndb.Key(MyUser, 'dummy')
+            if user_key.get() == None:
                 create_dummy()
-        #If the user is signed it, check that this is not one of their streams
+        # If the user is signed it, check that this is not one of their streams
         else:
-            userkey = ndb.Key(MyUser, user.email().lower())
+            user_key = ndb.Key(MyUser, user.email().lower())
 
-            #confirm or create MyUser object
-            if (userkey.get() == None):
+            # confirm or create MyUser object
+            if (user_key.get() == None):
                 NewUser = MyUser(id = user.email().lower(), email = user.email().lower(),update_rate = 'never')
                 NewUser.put()
 
-            currentuser = userkey.get()
+            currentuser = user_key.get()
 
-            #Is user's stream keys do not contain this stream key, add view to stream's view queue
-            if (stream.key not in currentuser.streams_own):
+            # Is user's stream keys do not contain this stream key, add view to stream's view queue
+            if stream.key not in currentuser.streams_own:
                 views.append(now)
 
-        #Purge hour old views
+        # Purge hour old views
         hourback = now - datetime.timedelta(hours = 1)
-        #self.response.write(hourback)
+        # self.response.write(hourback)
 
         for view in views:
             if view<hourback:
@@ -144,9 +150,6 @@ class ViewAHandler(webapp2.RequestHandler):
         stream.view_count = views
 
         stream.put()
-
-
-
 
         upload_url = blobstore.create_upload_url('/upload_photo')
 
@@ -179,7 +182,7 @@ class ViewAHandler(webapp2.RequestHandler):
         }
         template = JINJA_ENVIRONMENT.get_template('templates/viewa.html')
         self.response.write(template.render(template_values))
-        #self.response.write(stream.count)
+        # self.response.write(stream.count)
         # for view in views:
         #     self.response.write(str(view) + '<br>')
 
@@ -209,12 +212,12 @@ class SubscribeHandler(webapp2.RequestHandler):
         stream_query = Stream.query(Stream.name == stream_name)
         streams = stream_query.fetch()
         stream = streams[0]
-        #stream = ndb.Key(Stream, stream_name)
+        # stream = ndb.Key(Stream, stream_name)
 
         user = users.get_current_user()
         userkey = ndb.Key(MyUser, user.email().lower())
 
-        #confirm or create MyUser object
+        # confirm or create MyUser object
         if (userkey.get() == None):
             NewUser = MyUser(id = user.email().lower(), email = user.email().lower(),update_rate = 'never')
             NewUser.put()
@@ -225,6 +228,7 @@ class SubscribeHandler(webapp2.RequestHandler):
         currentuser.put()
 
         self.redirect('/view?stream=' + stream_name)
+
 
 class UnsubscribeHandler(webapp2.RequestHandler):
     def post(self):
@@ -251,12 +255,13 @@ class UnsubscribeHandler(webapp2.RequestHandler):
 
         self.redirect('/manage')
 
+
 class DeleteHandler(webapp2.RequestHandler):
     def post(self):
 
         stream_names = self.request.get_all('stream_name')
 
-        #Delete it in MyUser.streams_own
+        # Delete it in MyUser.streams_own
         user = users.get_current_user()
         cur_user = ndb.Key(MyUser, user.email().lower()).get()
 
@@ -275,10 +280,9 @@ class DeleteHandler(webapp2.RequestHandler):
         cur_user.streams_own = new_own_list
         cur_user.put()
 
-        #Delete it in MyUser.streams_subscribe
+        # Delete it in MyUser.streams_subscribe
         user_query = MyUser.query()
         myusers = user_query.fetch(400)
-        index = 0
         if len(myusers) > 0:
             for myuser in myusers:
                 subs_to_remove = []
@@ -296,8 +300,7 @@ class DeleteHandler(webapp2.RequestHandler):
                 myuser.streams_subscribe = new_sub_list
                 myuser.put()
 
-
-        #Need to delete the stream & its pictures
+        # Need to delete the stream & its pictures
         for stream_name in stream_names:
             stream_query = Stream.query(Stream.name == stream_name)
             streams = stream_query.fetch()
@@ -307,56 +310,52 @@ class DeleteHandler(webapp2.RequestHandler):
             # for pic in stream.photos:
             #    pic.key.delete()
 
-            #stream deleted
+            # stream deleted
             stream.key.delete()
 
         self.redirect('/manage')
-        #self.redirect('/view?stream=' + prac)
+        # self.redirect('/view?stream=')
+
 
 class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
     def post(self):
-        try:
+        if len(self.get_uploads()) == 0:
+            self.redirect('/error?message=nofile')
+            return
+        # Get the blob_key
+        upload = self.get_uploads()[0]
 
-            if len(self.get_uploads()) == 0:
-                self.redirect('/error?message=nofile')
-                return
-            #Get the blob_key
-            upload = self.get_uploads()[0]
+        # Get stream, name & comments
+        photo_name = self.request.get('file_name')
+        photo_comment = self.request.get('comment')
+        stream_name = self.request.get('stream')
 
-            #Get stream, name & comments
-            photo_name = self.request.get('file_name')
-            photo_comment = self.request.get('comment')
-            stream_name = self.request.get('stream')
+        # name = self.request.get('stream')
+        # stream_query = Stream.query(Stream.name == stream_name)
+        # streams = stream_query.fetch()
+        # stream = streams[0]
 
-            # name = self.request.get('stream')
-            # stream_query = Stream.query(Stream.name == stream_name)
-            # streams = stream_query.fetch()
-            # stream = streams[0]
+        user_photo = Picture(blob_key=upload.key(), name=photo_name, comment=photo_comment)
+        img_url = get_serving_url(user_photo.blob_key)
+        user_photo.pic_url = img_url
+        user_photo.put()
 
+        # Add the picture to it's stream
+        stream_query = Stream.query(Stream.name == stream_name)
+        streams = stream_query.fetch()
+        stream = streams[0]
 
-            user_photo = Picture(blob_key=upload.key(), name=photo_name, comment=photo_comment)
-            img_url = get_serving_url(user_photo.blob_key)
-            user_photo.pic_url = img_url
-            user_photo.put()
+        list_pics = stream.photos
+        list_pics.insert(0, user_photo)
+        # list_pics.append(user_photo)
+        stream.photos = list_pics
+        # stream.photos.append(user_photo)
+        # stream.photos[0] = user_photo
+        stream.update_date = datetime.datetime.now()
+        stream.put()
 
-            #Add the picture to it's stream
-            stream_query = Stream.query(Stream.name == stream_name)
-            streams = stream_query.fetch()
-            stream = streams[0]
-
-            list_pics = stream.photos
-            list_pics.insert(0, user_photo)
-            #list_pics.append(user_photo)
-            stream.photos = list_pics
-            #stream.photos.append(user_photo)
-            #stream.photos[0] = user_photo
-            stream.update_date = datetime.datetime.now()
-            stream.put()
-
-            self.redirect('/view?stream=' + stream_name)
-            #self.redirect('/')
-        except:
-            self.error(500)
+        self.redirect('/view?stream=' + stream_name)
+        # self.redirect('/')
 
 
 class AllPhotosHandler(webapp2.RequestHandler):
@@ -366,10 +365,11 @@ class AllPhotosHandler(webapp2.RequestHandler):
         photos = photo_query.fetch()
 
         template_values = {
-            'photos' : photos,
+            'photos': photos,
         }
         template = JINJA_ENVIRONMENT.get_template('templates/allpics.html')
         self.response.write(template.render(template_values))
+
 
 class CreateHandler(webapp2.RequestHandler):
     def get(self):
@@ -378,53 +378,52 @@ class CreateHandler(webapp2.RequestHandler):
             self.redirect(users.create_login_url(self.request.uri))
             return
 
-        template_values ={
+        template_values = {
         }
         template = JINJA_ENVIRONMENT.get_template('templates/create.html')
         self.response.write(template.render(template_values))
 
     def post(self):
-        #Get the name of the stream
+        # Get the name of the stream
         stream_name = self.request.get('streamname')
         if re.match('^[\w\s]+$', stream_name) is None:
-        #if re.match('([^\s\w]|_)+', stream_name) is None:
             self.redirect('/error?message=streamnamecontents')
             return
         if len(stream_name) == 0:
             self.redirect('/error?message=streamnamelen')
             return
-        #Need to see if a stream with that name already exists
+        # Need to see if a stream with that name already exists
         stream_query = Stream.query(Stream.name == stream_name)
         streams = stream_query.fetch(400)
         if streams:
             self.redirect('/error?message=streamnamedup')
             return
 
-        #get the emails and then send 'em
-        #emails = re.split(",| ",self.request.get('subscribers'))
+        # get the emails and then send 'em
+        # emails = re.split(",| ",self.request.get('subscribers'))
         emails = self.request.get('subscribers').replace(" ","").split(",")
         email_message = self.request.get('message')
-        #Need to change this to the actual url of the stream
+        # Need to change this to the actual url of the stream
         stream_url = "http://apt2015mini.appspot.com/view?stream=" + urllib.quote_plus(stream_name)
         sendSubscriptionEmails(emails, email_message, stream_url)
 
-        #tags
+        # tags
         tag_list = self.request.get('tags').replace('#', '').split(" ")
 
         #cover image
         cover = self.request.get('coverurl')
-        if(len(cover) == 0):
+        if len(cover) == 0:
             cover = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/300px-No_image_available.svg.png"
 
         #Put it all together in a stream object
         safe_name_url = urllib.quote_plus(stream_name)
         stream = Stream()
-        stream.name=stream_name
+        stream.name = stream_name
         stream.id = stream_name
-        stream.name_safe=safe_name_url
-        stream.subscribers=emails
-        stream.tags=tag_list
-        stream.cover_url=cover
+        stream.name_safe = safe_name_url
+        stream.subscribers = emails
+        stream.tags = tag_list
+        stream.cover_url = cover
 
         stream.put()
 
@@ -433,9 +432,9 @@ class CreateHandler(webapp2.RequestHandler):
             for sub_email in emails:
                 sub_email_use = sub_email.replace(' ', '')
                 subscriber_key = ndb.Key(MyUser, sub_email_use.lower())
-                if subscriber_key.get() == None:
-                    NewUser = MyUser(id = sub_email_use.lower(), email = sub_email_use.lower(),update_rate = 'never')
-                    NewUser.put()
+                if subscriber_key.get() is None:
+                    new_user = MyUser(id = sub_email_use.lower(), email = sub_email_use.lower(),update_rate = 'never')
+                    new_user.put()
 
                 user_sub = subscriber_key.get()
                 if users.get_current_user().email().lower() != user_sub.email.lower():
@@ -443,7 +442,6 @@ class CreateHandler(webapp2.RequestHandler):
                 user_sub.put()
                 self.response.write('<br>' +user_sub.email)
                 self.response.write('<br>' +sub_email)
-
 
         #Need to set the user as the owner
         user = users.get_current_user()
@@ -493,7 +491,7 @@ class ManageHandler(webapp2.RequestHandler):
         #MyUser instances are stored in blobstore using the user email as a key (id)
         userkey = ndb.Key(MyUser, user.email().lower())
 
-        if (userkey.get() == None):
+        if userkey.get() is None:
             NewUser = MyUser(id = user.email().lower(), email = user.email().lower(),update_rate = 'never')
             NewUser.put()
 
@@ -578,7 +576,6 @@ class PurgeHandler(webapp2.RequestHandler):
             stream_message = (str(index) + ' items deleted from Stream at ' + str(hour) + ':' + str(minute) + ':' + str(second)+'\n\n')
             if index == 400:
                 self.redirect("/purge")
-
 
         except Exception, e:
  #           self.response.out.write('Error is: ' + repr(e) + '\n')
@@ -787,13 +784,14 @@ class SendFiveHandler(webapp2.RequestHandler):
             message.body = """Check out what's trending! """ + app_url
             message.send()
 
+
 class SendHourHandler(webapp2.RequestHandler):
     def get(self):
         #find all users who want an email update every hour
         user_query = MyUser.query(MyUser.update_rate == 'every hour')
         users = user_query.fetch()
 
-        #test
+        ##test
         # message = mail.EmailMessage()
         # message.sender = 'andrew.c.stier@gmail.com'
         # message.to = 'andrew.c.stier@gmail.com'
@@ -874,7 +872,7 @@ class SearchHandler(webapp2.RequestHandler):
 class SearchResultsHandler(webapp2.RequestHandler):
     def get(self):
 
-        template_values ={}
+        template_values = {}
         template = JINJA_ENVIRONMENT.get_template('templates/search.html')
         self.response.write(template.render(template_values))
 
