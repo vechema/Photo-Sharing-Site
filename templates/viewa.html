@@ -44,12 +44,13 @@
     {% endif %}
 
     {% if stream.key not in user.streams_subscribe %}
-    {%if stream.key not in user.streams_own %}
+    {% if stream.key not in user.streams_own %}
+    {% if user.email != 'dummy' %}
     <form action="/subscribe" method="POST">
         <input type="hidden" name="stream" value="{{stream.name}}">
         <input type="submit" value="Subscribe" name="subscribe" />
     </form>
-
+    {% endif %}
     {% endif %}
     {% endif %}
 </body>

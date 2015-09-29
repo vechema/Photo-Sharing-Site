@@ -12,7 +12,6 @@ from google.appengine.api import mail
 from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.api.images import get_serving_url
 
-
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
     extensions=['jinja2.ext.autoescape'],
@@ -83,6 +82,9 @@ class ViewAllHandler(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('templates/viewall.html')
         self.response.write(template.render(template_values))
 
+def create_dummy():
+    nonUser = MyUser(id = 'dummy', email = 'dummy', update_rate='never')
+    nonUser.put()
 
 class ViewAHandler(webapp2.RequestHandler):
     def get(self):
@@ -105,13 +107,16 @@ class ViewAHandler(webapp2.RequestHandler):
         user = users.get_current_user()
         if not user:
             views.append(now)
+            userkey = ndb.Key(MyUser, 'dummy')
+            if(userkey.get() == None):
+                create_dummy()
         #If the user is signed it, check that this is not one of their streams
         else:
-            userkey = ndb.Key(MyUser, user.email())
+            userkey = ndb.Key(MyUser, user.email().lower())
 
             #confirm or create MyUser object
             if (userkey.get() == None):
-                NewUser = MyUser(id = user.email(), email = user.email(),update_rate = 'never')
+                NewUser = MyUser(id = user.email().lower(), email = user.email().lower(),update_rate = 'never')
                 NewUser.put()
 
             currentuser = userkey.get()
@@ -148,7 +153,10 @@ class ViewAHandler(webapp2.RequestHandler):
         for i in range(0,limit):
             photo_url_list.append(get_serving_url(pics[i].blob_key))
 
-        myuser = ndb.Key(MyUser, user.email()).get()
+        if not user:
+            my_user = ndb.Key(MyUser, 'dummy').get()
+        else:
+            my_user = ndb.Key(MyUser, user.email().lower()).get()
 
         view_all = self.request.get('viewall')
 
@@ -156,7 +164,7 @@ class ViewAHandler(webapp2.RequestHandler):
             'stream' : stream,
             'upload_url' : upload_url,
             'photo_url_list' : photo_url_list,
-            'user' : myuser,
+            'user' : my_user,
             'stream_name' : stream.name,
             'num_pics' : len(pics),
             'view_all' : view_all,
@@ -196,11 +204,11 @@ class SubscribeHandler(webapp2.RequestHandler):
         #stream = ndb.Key(Stream, stream_name)
 
         user = users.get_current_user()
-        userkey = ndb.Key(MyUser, user.email())
+        userkey = ndb.Key(MyUser, user.email().lower())
 
         #confirm or create MyUser object
         if (userkey.get() == None):
-            NewUser = MyUser(id = user.email(), email = user.email(),update_rate = 'never')
+            NewUser = MyUser(id = user.email().lower(), email = user.email().lower(),update_rate = 'never')
             NewUser.put()
 
         currentuser = userkey.get()
@@ -215,7 +223,7 @@ class UnsubscribeHandler(webapp2.RequestHandler):
         stream_names = self.request.get_all('stream_name')
 
         user = users.get_current_user()
-        cur_user = ndb.Key(MyUser, user.email()).get()
+        cur_user = ndb.Key(MyUser, user.email().lower()).get()
 
         subs_to_remove = []
         for sub in cur_user.streams_subscribe:
@@ -242,7 +250,7 @@ class DeleteHandler(webapp2.RequestHandler):
 
         #Delete it in MyUser.streams_own
         user = users.get_current_user()
-        cur_user = ndb.Key(MyUser, user.email()).get()
+        cur_user = ndb.Key(MyUser, user.email().lower()).get()
 
         owns_to_remove = []
         for owned in cur_user.streams_own:
@@ -407,18 +415,36 @@ class CreateHandler(webapp2.RequestHandler):
 
         stream.put()
 
+        #Now I need to sign people up by their emails
+        if emails[0] != "":
+            for sub_email in emails:
+                subscriber_key = ndb.Key(MyUser, sub_email.lower())
+                if subscriber_key.get() == None:
+                    NewUser = MyUser(id = sub_email.lower(), email = sub_email.lower(),update_rate = 'never')
+                    NewUser.put()
+
+                user_sub = subscriber_key.get()
+                user_sub.streams_subscribe.append(stream.key)
+                user_sub.put()
+                self.response.write('<br>' +user_sub.email)
+                self.response.write('<br>' +sub_email)
+
+
         #Need to set the user as the owner
         user = users.get_current_user()
-        userkey = ndb.Key(MyUser, user.email())
+        userkey = ndb.Key(MyUser, user.email().lower())
 
         if (userkey.get() == None):
-            NewUser = MyUser(id = user.email(), email = user.email(),update_rate = 'never')
+            NewUser = MyUser(id = user.email().lower(), email = user.email().lower(),update_rate = 'never')
             NewUser.put()
 
         user_owner = userkey.get()
         user_owner.streams_own.append(stream.key)
         user_owner.put()
+        self.response.write('<br>' +user.email())
+        self.response.write('<br>' +user_owner.email)
 
+        #self.redirect('/' + garb)
         self.redirect('/manage')
         #self.redirect('/' + user_owner.email)
 
@@ -447,10 +473,10 @@ class ManageHandler(webapp2.RequestHandler):
 
         #confirm or create MyUser object
         #MyUser instances are stored in blobstore using the user email as a key (id)
-        userkey = ndb.Key(MyUser, user.email())
+        userkey = ndb.Key(MyUser, user.email().lower())
 
         if (userkey.get() == None):
-            NewUser = MyUser(id = user.email(), email = user.email(),update_rate = 'never')
+            NewUser = MyUser(id = user.email().lower(), email = user.email().lower(),update_rate = 'never')
             NewUser.put()
 
         # ThisUser = userkey.get()
@@ -582,11 +608,33 @@ class PurgeHandler(webapp2.RequestHandler):
  #           self.response.out.write('Error is: ' + repr(e) + '\n')
             pass
 
+        try:
+            leader_query = Leaders.query()
+            leaders = leader_query.fetch(400)
+            index = 0
+            if len(leaders) > 0:
+                for result in leaders:
+                    result.key.delete()
+                    index+=1
+
+            hour = datetime.datetime.now().time().hour
+            minute = datetime.datetime.now().time().minute
+            second = datetime.datetime.now().time().second
+            leader_message = (str(index) + ' items deleted from Leaders at ' + str(hour) + ':' + str(minute) + ':' + str(second)+'\n\n')
+            if index == 400:
+                self.redirect("/purge")
+
+
+        except Exception, e:
+ #           self.response.out.write('Error is: ' + repr(e) + '\n')
+            pass
+
         template_values ={
             'blob_message' : blob_message,
             'stream_message' : stream_message,
             'pic_message' : pic_message,
             'user_message' : user_message,
+            'leader_message' : leader_message,
         }
         template = JINJA_ENVIRONMENT.get_template('templates/purge.html')
         self.response.write(template.render(template_values))
@@ -600,10 +648,10 @@ class TrendingHandler(webapp2.RequestHandler):
         if user:
 
             #confirm or create MyUser object
-            userkey = ndb.Key(MyUser, user.email())
+            userkey = ndb.Key(MyUser, user.email().lower())
 
             if (userkey.get() == None):
-                NewUser = MyUser(id = user.email(), email = user.email(),update_rate = 'never')
+                NewUser = MyUser(id = user.email().lower(), email = user.email().lower(),update_rate = 'never')
                 NewUser.put()
 
             currentrate = userkey.get().update_rate
@@ -651,10 +699,10 @@ class TrendingHandler(webapp2.RequestHandler):
 
         #confirm or create MyUser object
         #MyUser instances are stored in blobstore using the user email as a key (id)
-        userkey = ndb.Key(MyUser, user.email())
+        userkey = ndb.Key(MyUser, user.email().lower())
 
         if (userkey.get() == None):
-            NewUser = MyUser(id = user.email(), email = user.email(),update_rate = 'never')
+            NewUser = MyUser(id = user.email().lower(), email = user.email().lower(),update_rate = 'never')
             NewUser.put()
 
         #update rate of currentuser
