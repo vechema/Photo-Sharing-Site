@@ -883,7 +883,7 @@ class SearchResultsHandler(webapp2.RequestHandler):
         #allstreams = []
         stream_query = Stream.query()
         for eachquery in query_list:
-            stream_query = stream_query.filter(ndb.OR(eachquery in Stream.name,
+            stream_query = stream_query.filter(ndb.OR(eachquery == Stream.name,
                                                 Stream.tags == eachquery))
             #allstreams = allstreams + streams
 
