@@ -418,13 +418,15 @@ class CreateHandler(webapp2.RequestHandler):
         #Now I need to sign people up by their emails
         if emails[0] != "":
             for sub_email in emails:
-                subscriber_key = ndb.Key(MyUser, sub_email.lower())
+                sub_email_use = sub_email.replace(' ', '')
+                subscriber_key = ndb.Key(MyUser, sub_email_use.lower())
                 if subscriber_key.get() == None:
-                    NewUser = MyUser(id = sub_email.lower(), email = sub_email.lower(),update_rate = 'never')
+                    NewUser = MyUser(id = sub_email_use.lower(), email = sub_email_use.lower(),update_rate = 'never')
                     NewUser.put()
 
                 user_sub = subscriber_key.get()
-                user_sub.streams_subscribe.append(stream.key)
+                if users.get_current_user().email().lower() != user_sub.email.lower():
+                    user_sub.streams_subscribe.append(stream.key)
                 user_sub.put()
                 self.response.write('<br>' +user_sub.email)
                 self.response.write('<br>' +sub_email)
@@ -454,7 +456,7 @@ def sendSubscriptionEmails(emails, note, stream_url):
     for email in emails:
         if len(email) > 0:
             message = mail.EmailMessage(sender=user.email(),
-                                    subject="You were subscribed")
+                                    subject="APT_Fall_15: Mini-project Subscription")
 
             message.to = email
             message.body = note + """
