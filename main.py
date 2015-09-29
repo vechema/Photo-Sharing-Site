@@ -475,7 +475,7 @@ class CreateHandler(webapp2.RequestHandler):
         self.response.write('<br>' +user.email())
 
         #self.redirect('/' + garb)
-        #self.redirect('/manage')
+        self.redirect('/manage')
         #self.redirect('/' + user_owner.email)
 
 
