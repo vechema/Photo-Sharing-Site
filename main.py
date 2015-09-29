@@ -767,11 +767,12 @@ class SendDayHandler(webapp2.RequestHandler):
 
 class SearchHandler(webapp2.RequestHandler):
     def get(self):
+
         template_values ={}
         template = JINJA_ENVIRONMENT.get_template('templates/search.html')
         self.response.write(template.render(template_values))
 
-    def post(self):
+
         query_list = self.request.get('thequery').replace(',', '').split(" ")
         allstreams = []
         for eachquery in query_list:
