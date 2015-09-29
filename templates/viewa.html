@@ -9,7 +9,6 @@
     {% include 'templates/header.html' %}
     <h3>{{stream.name}}</h3>
 
-    {%set count = 0%}
     <table>
         <tr>
 
@@ -19,18 +18,18 @@
             <tr>
         {% endif %}
         <td><img src="{{photo_url}}" style="width:128px;height:128px;"></td>
-        {% set count = count + 1%}
     {% endfor %}
         </tr>
     </table>
 
-    {%if count > 2 %}
-    <!--<form action="/morepics" method="get">-->
+    {%if num_pics > 3 %}
+    {%if not view_all%}
     <form action="/view?stream={{stream.name}}" method="get">
         <input type="hidden" name="stream" value="{{stream.name}}">
         <input type="hidden" name="viewall" value="True">
         <input type="submit" value="More Pictures" name="morepics" />
     </form>
+    {% endif%}
     {% endif%}
 
     {% if stream.key in user.streams_own %}
@@ -45,10 +44,13 @@
     {% endif %}
 
     {% if stream.key not in user.streams_subscribe %}
+    {%if stream.key not in user.streams_own %}
     <form action="/subscribe" method="POST">
         <input type="hidden" name="stream" value="{{stream.name}}">
         <input type="submit" value="Subscribe" name="subscribe" />
     </form>
+
+    {% endif %}
     {% endif %}
 </body>
 </html>
