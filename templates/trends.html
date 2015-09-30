@@ -44,6 +44,9 @@
     {% endfor %}
         <td>
             <h3>Email Trending Report</h3>
+            {% if current_rate == 'N/A'%}
+                <br> Please <a href="/login">login</a> to get a report
+            {% else %}
             Your current update rate is <b><u>{{ current_rate }}</u></b>.
             <form method="post">
                  <input type="radio" name="rate" value="never" checked>No reports
@@ -56,6 +59,7 @@
                 <br><br>
                 <input type="submit" value="Update Rate">
             </form>
+            {% endif %}
         </td>
         </tr>
     </table>
