@@ -500,11 +500,11 @@ def sendSubscriptionEmails(emails, note, stream_url):
 class ManageHandler(webapp2.RequestHandler):
     def get(self):
         user = users.get_current_user()
-        user_email = format_email(user.email())
+
         if not user:
             self.redirect(users.create_login_url(self.request.uri))
             return
-
+        user_email = format_email(user.email())
         #confirm or create MyUser object
         #MyUser instances are stored in blobstore using the user email as a key (id)
         userkey = ndb.Key(MyUser, user_email)
@@ -678,9 +678,8 @@ class TrendingHandler(webapp2.RequestHandler):
         #Find current update rate
         #Check to make sure there is a user object
         user = users.get_current_user()
-        user_email = format_email(user.email())
         if user:
-
+            user_email = format_email(user.email())
             #confirm or create MyUser object
             userkey = ndb.Key(MyUser, user_email)
 
