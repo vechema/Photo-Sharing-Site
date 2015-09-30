@@ -20,6 +20,7 @@ JINJA_ENVIRONMENT = jinja2.Environment(
 
 admin_email = "vechema@gmail.com"
 app_url = "http://apt2015mini.appspot.com/trending"
+leader_counts = []
 
 
 class Picture(ndb.Model):
@@ -733,6 +734,7 @@ class UpdateHandler(webapp2.RequestHandler):
     def get(self):
         #purge all views over an hour old
         allstreams = Stream.query()
+        del leader_counts[:]
         for eachstream in allstreams:
             views = eachstream.view_count
             now = datetime.datetime.now()
@@ -758,9 +760,12 @@ class UpdateHandler(webapp2.RequestHandler):
         leads_stored = Leaders(id = 'lkey')
         for stream in streams:
             leads_stored.champs.append(stream.key)
+            leader_counts.append(stream.count)
         leaderkey = leads_stored.put()
 
-        # self.response.write(leaderkey)
+        for leader_count in leader_counts:
+            self.response.write(leader_count)
+            self.response.write('<br>')
 
 class SendFiveHandler(webapp2.RequestHandler):
     def get(self):
@@ -881,7 +886,7 @@ class SearchResultsHandler(webapp2.RequestHandler):
         #allstreams = []
         stream_query = Stream.query()
         for eachquery in query_list:
-            stream_query = stream_query.filter(ndb.OR(eachquery == Stream.name,
+            stream_query = stream_query.filter(ndb.OR(Stream.name == eachquery,
                                                 Stream.tags == eachquery))
             #allstreams = allstreams + streams
 
