@@ -920,8 +920,12 @@ class SearchResultsHandler(webapp2.RequestHandler):
         self.response.write(template.render(template_values))
 
 
-
-
+class TestHandler(webapp2.RequestHandler):
+    def get(self):
+        template_values ={
+        }
+        template = JINJA_ENVIRONMENT.get_template('templates/test.html')
+        self.response.write(template.render(template_values))
 
 app = webapp2.WSGIApplication([
     ('/allpics', AllPhotosHandler),
@@ -945,4 +949,5 @@ app = webapp2.WSGIApplication([
     ('/sendfive', SendFiveHandler),
     ('/sendhour', SendHourHandler),
     ('/sendday', SendDayHandler),
+    ('/test', TestHandler),
     ], debug=True)
