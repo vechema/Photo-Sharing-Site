@@ -48,6 +48,9 @@ class Stream(ndb.Model):
 class Leaders(ndb.Model):
     champs = ndb.KeyProperty(repeated=True)
 
+class Cache(ndb.Model):
+    elements = ndb.StringProperty(repeated=True)
+
 
 class MyUser(ndb.Model):
     streams_own = ndb.KeyProperty(repeated=True)  # Going to hold stream keys
@@ -717,6 +720,7 @@ class TrendingHandler(webapp2.RequestHandler):
         template_values ={
             'current_rate' : currentrate,
             'streams' : leaders,
+            'views'   : leader_counts,
         }
         template = JINJA_ENVIRONMENT.get_template('templates/trends.html')
         self.response.write(template.render(template_values))
@@ -920,7 +924,65 @@ class SearchResultsHandler(webapp2.RequestHandler):
         self.response.write(template.render(template_values))
 
 
+class LearningHandler(webapp2.RequestHandler):
+    def get(self):
 
+        template_values = {}
+        template = JINJA_ENVIRONMENT.get_template('templates/learning.html')
+        self.response.write(template.render(template_values))
+
+class ExampleHandler(webapp2.RequestHandler):
+    def get(self):
+    #set already known key for leader information
+        thekey = ndb.Key(Cache, 'cachekey')
+
+        #check to see if leader information is available yet
+        if(thekey.get()==None):
+            cache_retrieved = []
+
+        else:
+            #GETS THE CACHE FROM THE DATASTORE
+            cache_retrieved = thekey.get()
+
+        testing = ["apple","cake"]
+
+        template_values = {
+            'available2' : cache_retrieved.elements
+            # 'available2' : testing
+        }
+        template = JINJA_ENVIRONMENT.get_template('templates/example.html')
+
+        self.response.write(template.render(template_values))
+
+class UpdateCacheHandler(webapp2.RequestHandler):
+    def get(self):
+        stream_query = Stream.query()
+        streams = stream_query.fetch()
+        cache = Cache(id = 'cachekey')
+        for stream in streams:
+            cache.elements.append(stream.name)
+            for tag in stream.tags:
+                cache.elements.append(tag)
+
+        cache.put()
+
+class GetCacheHandler(webapp2.RequestHandler):
+    def get(self):
+    #set already known key for leader information
+        thekey = ndb.Key(Cache, 'cachekey')
+
+        #check to see if leader information is available yet
+        if(thekey.get()==None):
+            cache_retrieved = []
+
+        else:
+            #GETS THE CACHE FROM THE DATASTORE
+            cache_retrieved = thekey.get()
+
+            # prints the cache
+            for element in cache_retrieved.elements:
+                self.response.write(element)
+                self.response.write('\n')
 
 
 app = webapp2.WSGIApplication([
@@ -945,4 +1007,8 @@ app = webapp2.WSGIApplication([
     ('/sendfive', SendFiveHandler),
     ('/sendhour', SendHourHandler),
     ('/sendday', SendDayHandler),
+    ('/learning', LearningHandler),
+    ('/example', ExampleHandler),
+    ('/updatecache', UpdateCacheHandler),
+    ('/getcache', GetCacheHandler),
     ], debug=True)
