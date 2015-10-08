@@ -7,6 +7,25 @@
 </head>
 <body>
     {% include 'templates/header.html' %}
+
+    {% if stream.key not in user.streams_subscribe %}
+    {% if stream.key not in user.streams_own %}
+    {% if user.email != 'dummy' %}
+    <form action="/subscribe" method="POST">
+        <input type="hidden" name="stream" value="{{stream.name}}">
+        <input type="submit" value="Subscribe" name="subscribe" />
+    </form>
+    {% endif %}
+    {% endif %}
+    {% endif %}
+
+    {% if user.email == 'dummy'%}
+    <form action="/error" method="get">
+        <input type="hidden" name="message" value="nosubscribe">
+        <input type="submit" value="Subscribe" name="subscribe" />
+    </form>
+    {% endif %}
+
     <h3>{{stream.name}}</h3>
 
     <table>
@@ -43,22 +62,5 @@
     </form>
     {% endif %}
 
-    {% if stream.key not in user.streams_subscribe %}
-    {% if stream.key not in user.streams_own %}
-    {% if user.email != 'dummy' %}
-    <form action="/subscribe" method="POST">
-        <input type="hidden" name="stream" value="{{stream.name}}">
-        <input type="submit" value="Subscribe" name="subscribe" />
-    </form>
-    {% endif %}
-    {% endif %}
-    {% endif %}
-
-    {% if user.email == 'dummy'%}
-    <form action="/error" method="get">
-        <input type="hidden" name="message" value="nosubscribe">
-        <input type="submit" value="Subscribe" name="subscribe" />
-    </form>
-    {% endif %}
 </body>
 </html>
