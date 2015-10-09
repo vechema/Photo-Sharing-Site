@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript" src="assests/js/test.js"></script>
+    <!--<script type="text/javascript" src="assests/js/dropzone.js"></script>-->
+    <script src="https://rawgit.com/enyo/dropzone/master/dist/dropzone.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="assests/css/dropzone.css">
+
+</head>
+<body>
+    {% include 'templates/header.html' %}
+
+    <!--<div><br>This page is to show basic jquery workings</div>-->
+
+    <!--<h2>This is a heading</h2>-->
+
+    <!--<p>This is a paragraph.</p>-->
+    <!--<p>This is another paragraph.</p>-->
+
+    <!--<button>Click me</button>-->
+
+    <!--<div class="container">-->
+    <!--<h1>My First Bootstrap Page</h1>-->
+    <!--<p>This part is inside a .container class.</p>-->
+    <!--<p>The .container class provides a responsive fixed width container.</p>-->
+    <!--</div>-->
+
+    <!--<script type="text/javascript">-->
+    <!--Dropzone.options.myDropzone = {-->
+        <!--maxFiles: 5,-->
+        <!--paramName: "file", // The name that will be used to transfer the file-->
+        <!--maxFilesize: 8, // MB-->
+    <!--};-->
+    <!--</script>-->
+
+    <form action="{{upload_url}}" class="dropzone" id="my-dropzone" method="post"
+            enctype="multipart/form-data">
+    </form>
+
+</body>
+</html>

@@ -255,6 +255,7 @@ class ViewAHandler(webapp2.RequestHandler):
             'view_all' : view_all,
         }
         template = JINJA_ENVIRONMENT.get_template('templates/viewa.html')
+        # template = JINJA_ENVIRONMENT.get_template('templates/test.html')
         self.response.write(template.render(template_values))
         # self.response.write(stream.count)
         # for view in views:
@@ -396,12 +397,12 @@ class DeleteHandler(webapp2.RequestHandler):
 
 class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
     def post(self):
-        if len(self.get_uploads()) == 0:
-            self.redirect('/error?message=nofile')
-            return
+#        if len(self.get_uploads()) == 0:
+#            self.redirect('/error?message=nofile')
+#            return
         # Get the blob_key
         upload = self.get_uploads()[0]
-
+        print upload
         # Get stream, name & comments
         photo_name = self.request.get('file_name')
         photo_comment = self.request.get('comment')
@@ -432,7 +433,6 @@ class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
         stream.put()
 
         self.redirect('/view?stream=' + stream_name)
-        # self.redirect('/')
 
 
 class AllPhotosHandler(webapp2.RequestHandler):
@@ -984,7 +984,18 @@ class SearchResultsHandler(webapp2.RequestHandler):
         self.response.write(template.render(template_values))
 
 
+class TestHandler(webapp2.RequestHandler):
+    def get(self):
+        upload_url = blobstore.create_upload_url('/upload_photo')
 
+<<<<<<< HEAD
+=======
+        template_values ={
+            'upload_url': upload_url,
+        }
+        template = JINJA_ENVIRONMENT.get_template('templates/test.html')
+        self.response.write(template.render(template_values))
+>>>>>>> origin/master
 
 app = webapp2.WSGIApplication([
     ('/learning', LearningHandler),
@@ -1012,4 +1023,5 @@ app = webapp2.WSGIApplication([
     ('/sendfive', SendFiveHandler),
     ('/sendhour', SendHourHandler),
     ('/sendday', SendDayHandler),
+    ('/test', TestHandler),
     ], debug=True)
