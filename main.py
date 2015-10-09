@@ -984,18 +984,18 @@ class SearchResultsHandler(webapp2.RequestHandler):
         self.response.write(template.render(template_values))
 
 
-class TestHandler(webapp2.RequestHandler):
-    def get(self):
-        upload_url = blobstore.create_upload_url('/upload_photo')
-
-<<<<<<< HEAD
-=======
-        template_values ={
-            'upload_url': upload_url,
-        }
-        template = JINJA_ENVIRONMENT.get_template('templates/test.html')
-        self.response.write(template.render(template_values))
->>>>>>> origin/master
+# class TestHandler(webapp2.RequestHandler):
+#     def get(self):
+#         upload_url = blobstore.create_upload_url('/upload_photo')
+#
+# <<<<<<< HEAD
+# =======
+#         template_values ={
+#             'upload_url': upload_url,
+#         }
+#         template = JINJA_ENVIRONMENT.get_template('templates/test.html')
+#         self.response.write(template.render(template_values))
+# >>>>>>> origin/master
 
 app = webapp2.WSGIApplication([
     ('/learning', LearningHandler),
@@ -1023,5 +1023,5 @@ app = webapp2.WSGIApplication([
     ('/sendfive', SendFiveHandler),
     ('/sendhour', SendHourHandler),
     ('/sendday', SendDayHandler),
-    ('/test', TestHandler),
+    # ('/test', TestHandler),
     ], debug=True)
