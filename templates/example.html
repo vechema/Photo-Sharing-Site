@@ -8,40 +8,19 @@
   <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 
 
-  <meta id="my-data" data-name="{{available2}}">
+{#  <meta id="my-data" data-name="{{available2}}">#}
 
   <script>
       //alert('hello world');
       $(function() {
-        var availableTags2 = $('#my-data').data();
-        var a = [
-          "ActionScript",
-          "AppleScript",
-          "Asp",
-          "BASIC",
-          "C",
-          "C++",
-          "Clojure",
-          "COBOL",
-          "ColdFusion",
-          "Erlang",
-          "Fortran",
-          "Groovy",
-          "Haskell",
-          "Java",
-          "JavaScript",
-          "Lisp",
-          "Perl",
-          "PHP",
-          "Python",
-          "Ruby",
-          "Scala",
-          "Scheme"
-        ];
-        alert(availableTags2.name);
-          alert(a);
+          var stream_name = [
+            {% for i in available2 %}
+                "{{i}}",
+            {% endfor %}
+            ];
+        alert(stream_name);
         $( "#tags" ).autocomplete({
-          source: a
+          source: stream_name
         });
       });
   </script>
