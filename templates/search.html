@@ -15,6 +15,7 @@
   <script>
       //alert('hello world');
       $(function() {
+{#          var max_results = 2;#}
           var stream_name = [
             {% for i in available2 %}
                 "{{i}}",
@@ -22,7 +23,7 @@
             ];
 {#        alert(stream_name);#}
         $( "#tags" ).autocomplete({
-          source: stream_name
+            source: stream_name.sort()
         });
       });
   </script>

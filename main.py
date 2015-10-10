@@ -99,6 +99,7 @@ class UpdateCacheHandler(webapp2.RequestHandler):
                 cache.elements.append(tag)
 
         cache.put()
+        self.redirect('/search')
 
 class GetCacheHandler(webapp2.RequestHandler):
     def get(self):

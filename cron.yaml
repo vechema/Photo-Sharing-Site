@@ -14,3 +14,7 @@ cron:
 - description: send a trending report every day to subscribers
   url: /sendday
   schedule: every 24 hours
+
+- description: update the possible autocomplete options
+  url: /updatecache
+  schedule: every 5 minutes
