@@ -65,7 +65,7 @@ class LearningHandler(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('templates/learning.html')
         self.response.write(template.render(template_values))
 
-class ExampleHandler(webapp2.RequestHandler):
+class SearchHandler(webapp2.RequestHandler):
     def get(self):
     #set already known key for leader information
         thekey = ndb.Key(Cache, 'cachekey')
@@ -78,13 +78,13 @@ class ExampleHandler(webapp2.RequestHandler):
             #GETS THE CACHE FROM THE DATASTORE
             cache_retrieved = thekey.get()
 
-        testing = ["apple","cake"]
+        # testing = ["apple","cake"]
 
         template_values = {
             'available2' : cache_retrieved.elements
             # 'available2' : testing
         }
-        template = JINJA_ENVIRONMENT.get_template('templates/example.html')
+        template = JINJA_ENVIRONMENT.get_template('templates/search.html')
 
         self.response.write(template.render(template_values))
 
@@ -917,51 +917,68 @@ class SendDayHandler(webapp2.RequestHandler):
             message.body = """Check out what's trending! """ + app_url
             message.send()
 
-class SearchHandler(webapp2.RequestHandler):
-    def get(self):
-
-        template_values ={}
-        template = JINJA_ENVIRONMENT.get_template('templates/search.html')
-        self.response.write(template.render(template_values))
-
-
-        query_list = self.request.get('thequery').replace(',', '').split(" ")
-        allstreams = []
-        for eachquery in query_list:
-            stream_query = Stream.query(ndb.OR(Stream.name == eachquery,
-                                            Stream.tags == eachquery))
-            streams = stream_query.fetch()
-            allstreams = allstreams + streams
-
-        for stream in allstreams:
-            self.response.write(stream.name)
-            self.response.write('<br>')
-
-class SearchHandler(webapp2.RequestHandler):
-    def get(self):
-
-        template_values ={}
-        template = JINJA_ENVIRONMENT.get_template('templates/search.html')
-        self.response.write(template.render(template_values))
-
-
-        # query_list = self.request.get('thequery').replace(',', '').split(" ")
-        # allstreams = []
-        # for eachquery in query_list:
-        #     stream_query = Stream.query(ndb.OR(Stream.name == eachquery,
-        #                                     Stream.tags == eachquery))
-        #     streams = stream_query.fetch()
-        #     allstreams = allstreams + streams
-        #
-        # for stream in allstreams:
-        #     self.response.write(stream.name)
-        #     self.response.write('<br>')
+# class SearchHandler(webapp2.RequestHandler):
+#     def get(self):
+#
+#         template_values ={}
+#         template = JINJA_ENVIRONMENT.get_template('templates/search.html')
+#         self.response.write(template.render(template_values))
+#
+#
+#         query_list = self.request.get('thequery').replace(',', '').split(" ")
+#         allstreams = []
+#         for eachquery in query_list:
+#             stream_query = Stream.query(ndb.OR(Stream.name == eachquery,
+#                                             Stream.tags == eachquery))
+#             streams = stream_query.fetch()
+#             allstreams = allstreams + streams
+#
+#         for stream in allstreams:
+#             self.response.write(stream.name)
+#             self.response.write('<br>')
+#
+# class SearchHandler(webapp2.RequestHandler):
+#     def get(self):
+#
+#         template_values ={}
+#         template = JINJA_ENVIRONMENT.get_template('templates/search.html')
+#         self.response.write(template.render(template_values))
+#
+#
+#         # query_list = self.request.get('thequery').replace(',', '').split(" ")
+#         # allstreams = []
+#         # for eachquery in query_list:
+#         #     stream_query = Stream.query(ndb.OR(Stream.name == eachquery,
+#         #                                     Stream.tags == eachquery))
+#         #     streams = stream_query.fetch()
+#         #     allstreams = allstreams + streams
+#         #
+#         # for stream in allstreams:
+#         #     self.response.write(stream.name)
+#         #     self.response.write('<br>')
 
 class SearchResultsHandler(webapp2.RequestHandler):
     def get(self):
 
-        template_values = {}
+        #set already known key for leader information
+        thekey = ndb.Key(Cache, 'cachekey')
+
+        #check to see if leader information is available yet
+        if(thekey.get()==None):
+            cache_retrieved = []
+
+        else:
+            #GETS THE CACHE FROM THE DATASTORE
+            cache_retrieved = thekey.get()
+
+        # testing = ["apple","cake"]
+
+        template_values = {
+            'available2' : cache_retrieved.elements
+            # 'available2' : testing
+        }
         template = JINJA_ENVIRONMENT.get_template('templates/search.html')
+
         self.response.write(template.render(template_values))
 
 
@@ -999,7 +1016,7 @@ class SearchResultsHandler(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
     ('/learning', LearningHandler),
-    ('/example', ExampleHandler),
+    # ('/example', ExampleHandler),
     ('/updatecache', UpdateCacheHandler),
     ('/getcache', GetCacheHandler),
     ('/allpics', AllPhotosHandler),

@@ -1,17 +1,46 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Search</title>
+  <meta charset="utf-8">
+  <title>Search</title>
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+  {% include 'templates/header.html' %}
+  <h2>Search</h2>
+
+
+{#  <meta id="my-data" data-name="{{available2}}">#}
+
+  <script>
+      //alert('hello world');
+      $(function() {
+          var stream_name = [
+            {% for i in available2 %}
+                "{{i}}",
+            {% endfor %}
+            ];
+{#        alert(stream_name);#}
+        $( "#tags" ).autocomplete({
+          source: stream_name
+        });
+      });
+  </script>
+
 </head>
 <body>
-    {% include 'templates/header.html' %}
-    <h2>Search</h2>
-    <form action = "/searchresults">
-      <input type="text" name="thequery">
+
+<form action = "/searchresults">
+      <input type="text" name="thequery" id = "tags">
       <br>
       <input type="submit" value="Search">
     </form>
+
+{#<div class="ui-widget">#}
+{#  <label for="tags">Search: </label>#}
+{#  <input id="tags">#}
+{#</div>#}
+
 
 </body>
 </html>
