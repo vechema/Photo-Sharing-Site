@@ -97,12 +97,17 @@ class SearchRequestHandler(webapp2.RequestHandler):
         strings = cache_retrieved.elements
         strings.sort()
 
+        query = self.request.get('term')
+        #search_dict[50] = query
+
         count = 0
         for element in strings:
-            search_dict[count]= str(element)
-            count = count + 1
-            if count == 20:
-                break
+            element_str = str(element)
+            if query in element_str:
+                search_dict[count]= element_str
+                count = count + 1
+                if count == 20:
+                    break
 
 
         self.response.write(json.dumps(search_dict))
