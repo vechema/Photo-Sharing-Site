@@ -5,6 +5,7 @@ import jinja2
 import datetime
 import cgi
 import re
+import json
 
 from google.appengine.api import users
 from google.appengine.ext import ndb
@@ -58,11 +59,56 @@ class MyUser(ndb.Model):
     email = ndb.StringProperty()
     update_rate = ndb.StringProperty()
 
+
+class SearchRequestHandler(webapp2.RequestHandler):
+    def get(self):
+
+        # toystreams = {}
+        # toystreams['l'] = "lightbox"
+        # toystream_dict = {}
+        # # toystream_dict["one"] = "singular sensation"
+        # # toystream_dict["two"] = "thrilling combinations"
+        # count = 0
+        # for i in range(1, 100):
+        #     toystream_dict[20 - i]= str(i)
+        #     count = count + 1
+        #     if count == 20:
+        #         break
+
+
+        search_dict = {}
+
+        #Get the cache
+        thekey = ndb.Key(Cache, 'cachekey')
+
+        #check to see if cache information is available yet
+        if(thekey.get()==None):
+            cache_retrieved = []
+
+        else:
+            #GETS THE CACHE FROM THE DATASTORE
+            cache_retrieved = thekey.get()
+
+        #sort index
+
+        strings = cache_retrieved.elements
+        strings.sort()
+
+        count = 0
+        for element in strings:
+            search_dict[count]= str(element)
+            count = count + 1
+            if count == 20:
+                break
+
+
+        self.response.write(json.dumps(search_dict))
+
 class LearningHandler(webapp2.RequestHandler):
     def get(self):
 
         template_values = {}
-        template = JINJA_ENVIRONMENT.get_template('templates/learning.html')
+        template = JINJA_ENVIRONMENT.get_template('templates/toy.html')
         self.response.write(template.render(template_values))
 
 class SearchHandler(webapp2.RequestHandler):
@@ -94,9 +140,12 @@ class UpdateCacheHandler(webapp2.RequestHandler):
         streams = stream_query.fetch()
         cache = Cache(id = 'cachekey')
         for stream in streams:
-            cache.elements.append(stream.name)
+            if stream.name not in cache.elements:
+                cache.elements.append(stream.name)
             for tag in stream.tags:
-                cache.elements.append(tag)
+                if tag != "":
+                    if tag not in cache.elements:
+                        cache.elements.append(tag)
 
         cache.put()
         self.redirect('/search')
@@ -115,6 +164,8 @@ class GetCacheHandler(webapp2.RequestHandler):
             cache_retrieved = thekey.get()
 
             # prints the cache
+            self.response.write(len(cache_retrieved.elements))
+
             for element in cache_retrieved.elements:
                 self.response.write(element)
                 self.response.write('\n')
@@ -1016,6 +1067,7 @@ class SearchResultsHandler(webapp2.RequestHandler):
 # >>>>>>> origin/master
 
 app = webapp2.WSGIApplication([
+    ('/searchrequest', SearchRequestHandler),
     ('/learning', LearningHandler),
     # ('/example', ExampleHandler),
     ('/updatecache', UpdateCacheHandler),
