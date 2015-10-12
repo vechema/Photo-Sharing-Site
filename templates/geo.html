@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GeoView of {{stream_name}}</title>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+    <script type="text/javascript" src="assests/js/markerclusterer.min.js"></script>
+    <script type="text/javascript" src="assests/js/jquery.ui.map.js"></script>
+    <!--<script type="text/javascript" src="assests/js/geo.js"></script>-->
+</head>
+<body>
+{% include 'templates/header.html' %}
+{% for pic in pics%}
+<script type="text/javascript">
+    $(function () {
+        $('#map_canvas').gmap({'zoom': 2, 'disableDefaultUI': true}).bind('init', function (evt, map) {
+            var bounds = map.getBounds();
+            var southWest = bounds.getSouthWest();
+            var northEast = bounds.getNorthEast();
+            var lngSpan = northEast.lng() - southWest.lng();
+            var latSpan = northEast.lat() - southWest.lat();
+            for (var i = 0; i < 1; i++) {
+                var lat = "{{pic.latitude}}";
+                var lng = "{{pic.longitude}}";
+                $('#map_canvas').gmap('addMarker', {
+                    'position': new google.maps.LatLng(lat, lng)
+                }).click(function () {
+                    $('#map_canvas').gmap('openInfoWindow', {content: ' <img src="{{pic.pic_url}}" height="100" width="100"> '}, this);
+                });
+            }
+            $('#map_canvas').gmap('set', 'MarkerClusterer', new MarkerClusterer(map, $(this).gmap('get', 'markers')));
+            // To call methods in MarkerClusterer simply call
+            // $('#map_canvas').gmap('get', 'MarkerClusterer').callingSomeMethod();
+        });
+    });
+</script>
+<!--<br><img src="{{pic.pic_url}}" style="width:128px;height:128px;">
+<br>Latitude {{pic.latitude}}
+<br>Longitude {{pic.longitude}}-->
+{%endfor%}
+
+<div id="map_canvas" style="width:750px;height:500px"></div>
+
+
+</body>
+</html>

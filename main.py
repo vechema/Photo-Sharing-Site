@@ -5,7 +5,11 @@ import jinja2
 import datetime
 import cgi
 import re
+<<<<<<< HEAD
 import json
+=======
+import random
+>>>>>>> bc67eb1446d951d21c30629916721fa28332177c
 
 from google.appengine.api import users
 from google.appengine.ext import ndb
@@ -30,6 +34,8 @@ class Picture(ndb.Model):
     upload_date = ndb.DateTimeProperty(auto_now_add=True)
     blob_key = ndb.BlobKeyProperty()
     pic_url = ndb.StringProperty()
+    longitude = ndb.IntegerProperty()
+    latitude = ndb.IntegerProperty()
 
 
 class Stream(ndb.Model):
@@ -333,6 +339,28 @@ class MorePicsHandler(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('templates/morepics.html')
         self.response.write(template.render(template_values))
 
+
+class GeoHandler(webapp2.RequestHandler):
+    def get(self):
+        stream_name = self.request.get('stream')
+
+        stream_query = Stream.query(Stream.name == stream_name)
+        streams = stream_query.fetch()
+        if len(streams) == 0:
+            self.redirect('/error?message=nosuchstream')
+            return
+        stream = streams[0]
+        pics = stream.photos
+
+        template_values = {
+            'stream_name': stream_name,
+            'stream': stream,
+            'pics': pics,
+        }
+        template = JINJA_ENVIRONMENT.get_template('templates/geo.html')
+        self.response.write(template.render(template_values))
+
+
 class SubscribeHandler(webapp2.RequestHandler):
     def post(self):
         stream_name = self.request.get('stream')
@@ -468,6 +496,11 @@ class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
         user_photo = Picture(blob_key=upload.key(), name=photo_name, comment=photo_comment)
         img_url = get_serving_url(user_photo.blob_key)
         user_photo.pic_url = img_url
+        # Add random latitude and longitude to a photo
+        user_photo.latitude = random.randint(-90,90)
+        user_photo.longitude = random.randint(-180,180)
+        #user_photo.latitude = 0
+        #user_photo.longitude = 0
         user_photo.put()
 
         # Add the picture to it's stream
@@ -1078,6 +1111,7 @@ app = webapp2.WSGIApplication([
     ('/upload_photo', PhotoUploadHandler),
     ('/view', ViewAHandler),
     ('/morepics', MorePicsHandler),
+    ('/geo', GeoHandler),
     ('/subscribe', SubscribeHandler),
     ('/unsubscribe', UnsubscribeHandler),
     ('/delete', DeleteHandler),
