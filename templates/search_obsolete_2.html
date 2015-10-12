@@ -13,25 +13,19 @@
 {#  <meta id="my-data" data-name="{{available2}}">#}
 
   <script>
+      //alert('hello world');
       $(function() {
-    var cache = {};
-    $( "#tags" ).autocomplete({
-      minLength: 1,
-      source: function( request, response ) {
-        var term = request.term;
-        if ( term in cache ) {
-          response( cache[ term ] );
-          return;
-        }
-
-        $.getJSON( "searchrequest", request, function( data, status, xhr ) {
-
-            cache[ term ] = data;
-          response( data );
+{#          var max_results = 2;#}
+          var stream_name = [
+            {% for i in available2 %}
+                "{{i}}",
+            {% endfor %}
+            ];
+{#        alert(stream_name);#}
+        $( "#tags" ).autocomplete({
+            source: stream_name.sort()
         });
-      }
-    });
-  });
+      });
   </script>
 
 </head>

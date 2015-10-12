@@ -1047,26 +1047,26 @@ class SendDayHandler(webapp2.RequestHandler):
 class SearchResultsHandler(webapp2.RequestHandler):
     def get(self):
 
-        #set already known key for leader information
-        thekey = ndb.Key(Cache, 'cachekey')
-
-        #check to see if leader information is available yet
-        if(thekey.get()==None):
-            cache_retrieved = []
-
-        else:
-            #GETS THE CACHE FROM THE DATASTORE
-            cache_retrieved = thekey.get()
-
-        # testing = ["apple","cake"]
-
-        template_values = {
-            'available2' : cache_retrieved.elements
-            # 'available2' : testing
-        }
-        template = JINJA_ENVIRONMENT.get_template('templates/search.html')
-
-        self.response.write(template.render(template_values))
+        # #set already known key for leader information
+        # thekey = ndb.Key(Cache, 'cachekey')
+        #
+        # #check to see if leader information is available yet
+        # if(thekey.get()==None):
+        #     cache_retrieved = []
+        #
+        # else:
+        #     #GETS THE CACHE FROM THE DATASTORE
+        #     cache_retrieved = thekey.get()
+        #
+        # # testing = ["apple","cake"]
+        #
+        # template_values = {
+        #     'available2' : cache_retrieved.elements
+        #     # 'available2' : testing
+        # }
+        # template = JINJA_ENVIRONMENT.get_template('templates/search.html')
+        #
+        # self.response.write(template.render(template_values))
 
 
         query_list = self.request.get('thequery').replace(',', '').split(" ")
