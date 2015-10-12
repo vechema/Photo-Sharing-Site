@@ -55,6 +55,12 @@
     {% endif%}
     {% endif%}
 
+    <!--Geo view button-->
+    <form action="/geo?stream={{stream.name}}" method="get">
+        <input type="hidden" name="stream" value="{{stream.name}}">
+        <input type="submit" value="Geo View" name="geoview" />
+    </form>
+
     {% if stream.key in user.streams_own %}
     <h3>Add an image</h3>
     <!--<form action="{{upload_url}}" method="POST" enctype="multipart/form-data">-->
