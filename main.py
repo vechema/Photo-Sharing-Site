@@ -5,11 +5,8 @@ import jinja2
 import datetime
 import cgi
 import re
-<<<<<<< HEAD
 import json
-=======
 import random
->>>>>>> bc67eb1446d951d21c30629916721fa28332177c
 
 from google.appengine.api import users
 from google.appengine.ext import ndb
