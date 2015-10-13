@@ -7,14 +7,95 @@
     }
 </style>
 <h1>Connex.us</h1>
-<div id="navcontainer">
+<div id="navcontainer" style="position:relative">
     <ul id="navlist">
         <li><a href="/manage">Manage</a></li>
         <li><a href="/create">Create</a></li>
         <li><a href="/viewall">View</a></li>
-        <li><a href="/search">Search</a></li>
+{#        <li><a href="/search">Search</a></li>#}
         <li><a href="/trending">Trending</a></li>
         <li><a href="/error?message=social">Social</a></li>
         <li><a href="/login">Login</a></li>
     </ul>
+{#    <form action = "/searchresults" style ="position:absolute; float: right">#}
+{#      <input type="text" name="thequery" id = "tags">#}
+{#      <input type="submit" value="Search">#}
+{#    </form>#}
+
 </div>
+
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+{#  {% include 'templates/header.html' %}#}
+{#  <h2>Search</h2>#}
+
+
+{#  <meta id="my-data" data-name="{{available2}}">#}
+
+  <script>
+      $(function() {
+    var cache = {};
+    $( "#tags" ).autocomplete({
+      minLength: 1,
+      source: function( request, response ) {
+        var term = request.term;
+        if ( term in cache ) {
+          response( cache[ term ] );
+          return;
+        }
+
+        $.getJSON( "searchrequest", request, function( data, status, xhr ) {
+
+            cache[ term ] = data;
+          response( data );
+        });
+      }
+    });
+  });
+  </script>
+
+</head>
+<body>
+
+<form action="/searchresults" style="position:absolute; right: 20px;top: 20px;">
+      <input type="text" name="thequery" id="tags" class="ui-autocomplete-input" autocomplete="off">
+      <input type="submit" value="Search">
+    <br>
+    <button type="button" onclick="loadDoc()">Update Completion Index</button>
+    </form>
+
+
+{#<form action = "/updatecache">#}
+{#      <input type="submit" value="Update Completion Index">#}
+{#    </form>#}
+
+
+<script>
+function loadDoc() {
+    $.ajax({
+        type: 'GET',                            // http method
+        url: 'updatecache',               // target URL
+        success: function (serverResp) {          // on ajax success
+            if (serverResp.code == '200') {
+                console.log('cache updated!');
+            }
+            else {
+                console.log('cache updated!');
+            }
+        },
+        error: function (serverResp) {            // on ajax failure
+            console.log('5xx http status code or unexpected response content');
+        }
+    });
+}
+</script>
+
+{#<div class="ui-widget">#}
+{#  <label for="tags">Search: </label>#}
+{#  <input id="tags">#}
+{#</div>#}
+
+
+</body>
+</html>
