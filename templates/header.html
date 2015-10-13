@@ -1,28 +1,63 @@
-<style>
-    #navlist li
-    {
-    display: inline;
-    list-style-type: none;
-    padding-right: 20px;
-    }
-</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+{#<style>#}
+{#    #navlist li#}
+{#    {#}
+{#    display: inline;#}
+{#    list-style-type: none;#}
+{#    padding-right: 20px;#}
+{#    }#}
+{#</style>#}
 <h1>Connex.us</h1>
-<div id="navcontainer" style="position:relative">
-    <ul id="navlist">
-        <li><a href="/manage">Manage</a></li>
-        <li><a href="/create">Create</a></li>
-        <li><a href="/viewall">View</a></li>
+
+<div class="row">
+  <div class="col-sm-2">
+      <div class="bg-success">
+        <a href="/manage">Manage</a>
+      </div>
+  </div>
+  <div class="col-sm-2">
+      <div class="bg-warning">
+        <a href="/create">Create
+      </div>
+  </div>
+  <div class="col-sm-2">
+      <div class="bg-info">
+      <a href="/viewall">View</a>
+      </div>
+  </div>
+  <div class="col-sm-2">
+      <div class="bg-danger">
+      <a href="/trending">Trending</a>
+          </div>
+  </div>
+  <div class="col-sm-2">
+      <div class="bg-important">
+      <a href="/login">Login</a>
+      </div>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+
+{#<div id="navcontainer" style="position:relative">#}
+{#    <ul id="navlist">#}
+{#        <li><a href="/manage">Manage</a></li>#}
+{#        <li><a href="/create">Create</a></li>#}
+{#        <li><a href="/viewall">View</a></li>#}
 {#        <li><a href="/search">Search</a></li>#}
-        <li><a href="/trending">Trending</a></li>
-        <li><a href="/error?message=social">Social</a></li>
-        <li><a href="/login">Login</a></li>
-    </ul>
+{#        <li><a href="/trending">Trending</a></li>#}
+{#        <li><a href="/error?message=social">Social</a></li>#}
+{#        <li><a href="/login">Login</a></li>#}
+{#    </ul>#}
 {#    <form action = "/searchresults" style ="position:absolute; float: right">#}
 {#      <input type="text" name="thequery" id = "tags">#}
 {#      <input type="submit" value="Search">#}
 {#    </form>#}
-
-</div>
+{##}
+{#</div>#}
 
   <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
   <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
