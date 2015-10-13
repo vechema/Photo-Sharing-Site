@@ -7,7 +7,12 @@
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
     <script type="text/javascript" src="assests/js/markerclusterer.min.js"></script>
     <script type="text/javascript" src="assests/js/jquery.ui.map.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <!--<script src="//code.jquery.com/jquery-1.10.2.js"></script>-->
     <!--<script type="text/javascript" src="assests/js/geo.js"></script>-->
+
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+
 </head>
 <body>
 {% include 'templates/header.html' %}
@@ -38,10 +43,38 @@
 <!--<br><img src="{{pic.pic_url}}" style="width:128px;height:128px;">
 <br>Latitude {{pic.latitude}}
 <br>Longitude {{pic.longitude}}-->
+
+
 {%endfor%}
+
+<script type="text/javascript">
+    $(function () {
+        $("#slider-range").slider({
+            range: true,
+            min: 0,
+            max: 500,
+            values: [75, 300],
+            slide: function (event, ui) {
+                $("#amount").val("$" + ui.values[0] + " - $" + ui.values[1]);
+            }
+        });
+        $("#amount").val("$" + $("#slider-range").slider("values", 0) +
+                " - $" + $("#slider-range").slider("values", 1));
+    });
+</script>
+
+{% if pics|length < 1%}
+<br> No pictures yet!
+{%endif%}
 
 <div id="map_canvas" style="width:750px;height:500px"></div>
 
+<p>
+  <label for="amount">Price range:</label>
+  <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;">
+</p>
+
+<div id="slider-range"></div>
 
 </body>
 </html>
