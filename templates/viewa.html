@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+{% include 'templates/header.html' %}
 <head>
     <meta charset="UTF-8">
     <title>{{stream.name}}</title>
@@ -10,7 +11,7 @@
 
 </head>
 <body>
-    {% include 'templates/header.html' %}
+
 
     {% if stream.key not in user.streams_subscribe %}
     {% if stream.key not in user.streams_own %}
@@ -32,18 +33,20 @@
 
     <h3>{{stream.name}}</h3>
 
-    <table>
-        <tr>
+{#    <table>#}
+        <div class = "row">
 
     {% for photo_url in photo_url_list %}
-        {% if loop.index0 is divisibleby 3 %}
-            </tr>
-            <tr>
+        {% if loop.index0 is divisibleby 6 %}
+            </div>
+            <div class = "row">
         {% endif %}
-        <td><img src="{{photo_url}}" style="width:128px;height:128px;"></td>
+        <div class="col-sm-2">
+            <img src="{{photo_url}}" style="width:150px;height:150px;">
+        </div>
     {% endfor %}
-        </tr>
-    </table>
+        </div>
+{#    </table>#}
 
     {%if num_pics > 3 %}
     {%if not view_all%}

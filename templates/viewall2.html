@@ -7,20 +7,17 @@
 <body>
     {% include 'templates/header.html' %}
     <h4>View All Streams</h4>
-{#    <table>#}
-        <div class = "row">
+    <table>
+        <tr>
     {% for stream in streams %}
-        {% if loop.index0 is divisibleby 6 %}
-            </div>
-            <div class = "row">
+        {% if loop.index0 is divisibleby 3 %}
+            </tr>
+            <tr>
         {% endif %}
-        <div class="col-sm-2">
-{#        <td>#}
-            <a href="/view?stream={{stream.name_safe}}">
+        <td><a href="/view?stream={{stream.name_safe}}">
             <img src="{{stream.cover_url}}" style="width:128px;height:128px;">
         </a>
-        <br>{{stream.name}}
-{#            </td>#}
+        <br>{{stream.name}}</td>
         <!--<ul id="categories">-->
             <!--<li>subscribers-->
                 <!--<ul id="emaillist">-->
@@ -44,9 +41,8 @@
                 <!--</ul>-->
             <!--</li>-->
         <!--</ul>-->
-        </div>
     {% endfor %}
-        </div>
+        </tr>
     </table>
 </body>
 </html>
