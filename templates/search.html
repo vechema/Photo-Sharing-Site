@@ -43,6 +43,32 @@
       <input type="submit" value="Search">
     </form>
 
+{#<form action = "/updatecache">#}
+{#      <input type="submit" value="Update Completion Index">#}
+{#    </form>#}
+
+<button type="button" onclick="loadDoc()">Update Completion Index</button>
+
+<script>
+function loadDoc() {
+    $.ajax({
+        type: 'GET',                            // http method
+        url: 'updatecache',               // target URL
+        success: function (serverResp) {          // on ajax success
+            if (serverResp.code == '200') {
+                console.log('cache updated!');
+            }
+            else {
+                console.log('cache updated!');
+            }
+        },
+        error: function (serverResp) {            // on ajax failure
+            console.log('5xx http status code or unexpected response content');
+        }
+    });
+}
+</script>
+
 {#<div class="ui-widget">#}
 {#  <label for="tags">Search: </label>#}
 {#  <input id="tags">#}
