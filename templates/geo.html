@@ -16,8 +16,10 @@
 </head>
 <body>
 {% include 'templates/header.html' %}
-{% for pic in pics%}
+
 <script type="text/javascript">
+    var picts = "{{pics}}";
+
     $(function () {
         $('#map_canvas').gmap({'zoom': 2, 'disableDefaultUI': true}).bind('init', function (evt, map) {
             var bounds = map.getBounds();
@@ -25,53 +27,64 @@
             var northEast = bounds.getNorthEast();
             var lngSpan = northEast.lng() - southWest.lng();
             var latSpan = northEast.lat() - southWest.lat();
-            for (var i = 0; i < 1; i++) {
-                var lat = "{{pic.latitude}}";
-                var lng = "{{pic.longitude}}";
-                $('#map_canvas').gmap('addMarker', {
-                    'position': new google.maps.LatLng(lat, lng)
-                }).click(function () {
-                    $('#map_canvas').gmap('openInfoWindow', {content: ' <img src="{{pic.pic_url}}" height="100" width="100"> '}, this);
-                });
-            }
-            $('#map_canvas').gmap('set', 'MarkerClusterer', new MarkerClusterer(map, $(this).gmap('get', 'markers')));
+
             // To call methods in MarkerClusterer simply call
             // $('#map_canvas').gmap('get', 'MarkerClusterer').callingSomeMethod();
         });
     });
+    function getCorgis(startDate, endDate){
+        for (var i = 0; i < picts.length; i++) {
+                var lng = picts[i].longitude;
+                var lat = picts[i].latitude;
+                var uploadDate = picts[i].upload_date;
+                if (uploadDate >= startDate && uploadDate <= endDate) {
+                    $('#map_canvas').gmap('addMarker', {
+                        'position': new google.maps.LatLng(lat, lng)
+                    }).click(function () {
+                        $('#map_canvas').gmap('openInfoWindow', {content: ' <img src=picts[i].pic_url height="100" width="100"> '}, this);
+                    });
+                }
+            }
+    };
 </script>
-<!--<br><img src="{{pic.pic_url}}" style="width:128px;height:128px;">
-<br>Latitude {{pic.latitude}}
-<br>Longitude {{pic.longitude}}-->
 
 
-{%endfor%}
 
 <script type="text/javascript">
+    var start_date_int = new Date(new Date().setYear(new Date().getFullYear() - 1)).getTime();
+    var end_date_int = new Date().getTime();
+    var start_date_str = start_date_int.toString();
+    var end_date_str = end_date_int.toString();
     $(function () {
         $("#slider-range").slider({
             range: true,
-            min: 0,
-            max: 500,
-            values: [75, 300],
+            min: start_date_int,
+            max: end_date_int,
+            /*min: 0,
+             max: 500,*/
+            values: [start_date_int, end_date_int],
             slide: function (event, ui) {
-                $("#amount").val("$" + ui.values[0] + " - $" + ui.values[1]);
+                getCorgis(ui.values[0], ui.values[1]);
+                $("#amount").val("" + ui.values[0] + " - " + ui.values[1]);
             }
         });
-        $("#amount").val("$" + $("#slider-range").slider("values", 0) +
-                " - $" + $("#slider-range").slider("values", 1));
+
+        $("#amount").val("" + $("#slider-range").slider("values", 0) +
+                " - " + $("#slider-range").slider("values", 1));
     });
+
+    document.write(new Date(new Date().setYear(new Date().getFullYear() - 1)).getTime())
 </script>
 
 {% if pics|length < 1%}
 <br> No pictures yet!
-{%endif%}
 
+{% else %}
 <div id="map_canvas" style="width:750px;height:500px"></div>
-
+{%endif%}
 <p>
-  <label for="amount">Price range:</label>
-  <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;">
+    <label for="amount">Price range:</label>
+    <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;">
 </p>
 
 <div id="slider-range"></div>
