@@ -1,34 +1,24 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>toy</title>
-  <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
-  <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-  <style>
-  </style>
-  <script>
-  $.getJSON( "searchrequest", function( data ) {
-  var items = [];
-  $.each( data, function( key, val ) {
-    items.push( "<li id='" + key + "'>" + val + "</li>" );
-  });
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+<script type="text/javascript" src="..\assests\js\markerclusterer.js"></script>
+<script type="text/javascript" src="..\assests\js\jquery.ui.map.js"></script>
 
-  $( "<ul/>", {
-    "class": "my-new-list",
-    html: items.join( "" )
-  }).appendTo( "body" );
-});
-  </script>
+<!DOCTYPE html>
+<html>
+<head>
+{#<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>#}
+{#<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>#}
+{#<script type="text/javascript" src="..\assests\js\markerclusterer.js"></script>#}
+{#<script type="text/javascript" src="..\assests\js\jquery.ui.map.js"></script>#}
+
 </head>
+
 <body>
- 
-<div class="ui-widget">
-  <label for="birds">Birds: </label>
-  <input id="birds">
-</div>
- 
- 
+<div id="map_canvas" style="width:500px;height:380px;"></div>
+<script>
+$('#map_canvas').gmap();
+</script>
 </body>
+
+
 </html>

@@ -116,7 +116,7 @@ class LearningHandler(webapp2.RequestHandler):
     def get(self):
 
         template_values = {}
-        template = JINJA_ENVIRONMENT.get_template('templates/toy.html')
+        template = JINJA_ENVIRONMENT.get_template('templates/toy2.html')
         self.response.write(template.render(template_values))
 
 class SearchHandler(webapp2.RequestHandler):
