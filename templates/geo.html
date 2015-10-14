@@ -51,6 +51,8 @@
 
 <script type="text/javascript">
 
+    var my_map;
+
     var start_date_int = new Date(new Date().setYear(new Date().getFullYear() - 1)).getTime() / 86400000;
     //var start_date_int = new Date(new Date().setDate(new Date().getDate() - 2)).getTime()/86400000;
     var end_date_int = new Date().getTime() / 86400000;
@@ -60,7 +62,15 @@
 
     });
     function refresh_map(startDate, endDate) {
+        console.log("In refresh_map");
+
         $('#map_canvas').gmap({'zoom': 2, 'disableDefaultUI': true}).bind('init', function (evt, map) {
+            console.log("Inside the binding");
+
+            my_map = map;
+            console.log(map);
+            console.log(my_map);
+
             var bounds = map.getBounds();
             var southWest = bounds.getSouthWest();
             var northEast = bounds.getNorthEast();
@@ -68,37 +78,32 @@
             var latSpan = northEast.lat() - southWest.lat();
 
             //$('#map_canvas').gmap('clearMarkers');
-            $('#map_canvas').gmap('clear', 'markers');
-            for (var i = 0; i < imgObjs.length; i++) {
-                var lng = imgObjs[i].lng;
-                var lat = imgObjs[i].lat;
-                var uploadDate = imgObjs[i].up_date;
-                var pic_img = '<img src=' + imgObjs[i].imgurl + ' height="100" width="100">';
-                //document.write(pic_img);
-                //This date comparison should just be comparing numbbers
-                if (uploadDate >= startDate && uploadDate <= endDate) {
-
-                    $('#map_canvas').gmap('addMarker', {
-                        'position': new google.maps.LatLng(lat, lng),
-                        'pic_url': pic_img,
-                    }).mouseover(function () {
-                        //$('#map_canvas').gmap('openInfoWindow', {content: pic_img}, this);
-                        $('#map_canvas').gmap('openInfoWindow', {content: this.pic_url}, this);
-                    });
-                }
-            }
             $('#map_canvas').gmap('set', 'MarkerClusterer', new MarkerClusterer(map, $(this).gmap('get', 'markers')));
-
+            getCorgis(startDate, endDate, map);
+            console.log("Made map");
             //getCorgis(start_date_int, end_date_int, map);
             //$('#map_canvas').gmap('set', 'MarkerClusterer', new MarkerClusterer(map, $(this).gmap('get', 'markers')));
             // To call methods in MarkerClusterer simply call
             // $('#map_canvas').gmap('get', 'MarkerClusterer').callingSomeMethod();
         });
+        console.log("End of refresh_map");
     }
     ;
-    function getCorgis(startDate, endDate, map) {
-        //$('#map_canvas').gmap('clearMarkers');
+
+
+    function getCorgis(startDate, endDate, the_map) {
+        console.log("In getCorgis");
+        console.log(my_map);
         $('#map_canvas').gmap('clear', 'markers');
+        $('#map_canvas').gmap('get', 'MarkerClusterer').clearMarkers();
+ //       $('#map_canvas').gmap({'callback': function (map) {
+                // The keyword 'this' refers to the plugin object itself. Which means you can execute shorthand code; e.g. this.addMarker({...});
+                // do something
+
+        //$('#map_canvas').gmap('set', 'MarkerClusterer', new MarkerClusterer($('#map_canvas').gmap('get', 'map'), null));
+                //$('#map_canvas').gmap('clearMarkers');
+//        $('#map_canvas').gmap({'populate':function() {
+        console.log("Inside insdie function");
         for (var i = 0; i < imgObjs.length; i++) {
             var lng = imgObjs[i].lng;
             var lat = imgObjs[i].lat;
@@ -117,9 +122,15 @@
                 });
             }
         }
-        $('#map_canvas').gmap('set', 'MarkerClusterer', new MarkerClusterer(map, $(this).gmap('get', 'markers')));
-    }
-    ;
+        $('#map_canvas').gmap('set', 'MarkerClusterer', new MarkerClusterer($('#map_canvas').gmap('get', 'map'), $('#map_canvas').gmap('get', 'markers')));
+
+        //this.set('MarkerClusterer', new MarkerClusterer(this.get('map'), this.get('markers')));
+
+//            }});
+            //}});
+        //$('#map_canvas').gmap().populate();
+        //$('#map_canvas').gmap('set', 'MarkerClusterer', new MarkerClusterer(my_map, $(this).gmap('get', 'markers')));
+    };
 </script>
 
 
@@ -152,7 +163,8 @@
             },
             stop: function (event, ui) {
                 console.log('Start:' + ui.values[0] + ' End:' + ui.values[1]);
-                refresh_map(ui.values[0], ui.values[1]);
+                getCorgis(ui.values[0], ui.values[1], $('#map_canvas').gmap('get', 'map'));
+                console.log("done refreshing, in slider");
             }
         });
 
