@@ -32,7 +32,7 @@
         var long = $(this).attr('lng').trim();
         //upload_date/up_date is IN MILLISECONDS accurate to teh day
         var upload_date = new Date($(this).attr('up_date').trim().split(' ')[0]).getTime();
-        document.write($(this).attr('up_date'));
+        //document.write($(this).attr('up_date'));
         var image = {imgurl: url, lat: latit, lng: long, up_date: upload_date};
         imgObjs.push(image);
     });
@@ -45,8 +45,8 @@
      document.write('<li>'+imgObjs[i].lng+'</li>');
      document.write('<li>'+imgObjs[i].up_date+'</li>');
 
-     document.write('</ul>');*/
-     }
+     document.write('</ul>');
+     }*/
 </script>
 
 <script type="text/javascript">
