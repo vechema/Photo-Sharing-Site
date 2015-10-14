@@ -35,8 +35,8 @@
         var image = {imgurl: url, lat: latit, lng: long, up_date: upload_date};
         imgObjs.push(image);
     });
-    /*
-     var arrayLength = imgObjs.length;
+
+/*     var arrayLength = imgObjs.length;
      for (var i = 0; i < arrayLength; i++) {
      document.write('<ul>');
      document.write('<li>'+imgObjs[i].imgurl+'</li>');
@@ -50,7 +50,9 @@
 
 <script type="text/javascript">
 
-    var picts = "{{pics}}";
+    //var start_date_int = new Date(new Date().setYear(new Date().getFullYear() - 1)).getTime();
+    var start_date_int = new Date(new Date().setDate(new Date().getDate() - 2)).getTime();
+    var end_date_int = new Date().getTime();
 
     $(function () {
         $('#map_canvas').gmap({'zoom': 2, 'disableDefaultUI': true}).bind('init', function (evt, map) {
@@ -60,14 +62,14 @@
             var lngSpan = northEast.lng() - southWest.lng();
             var latSpan = northEast.lat() - southWest.lat();
 
-            var end = new Date().getTime();
-            var start = new Date(new Date().setYear(new Date().getFullYear() - 1)).getTime();
-            getCorgis(start, end);
+            getCorgis(start_date_int, end_date_int);
             // To call methods in MarkerClusterer simply call
             // $('#map_canvas').gmap('get', 'MarkerClusterer').callingSomeMethod();
         });
     });
     function getCorgis(startDate, endDate) {
+        //$('#map_canvas').gmap('clearMarkers');
+        $('#map_canvas').gmap('clear', 'markers');
         for (var i = 0; i < imgObjs.length; i++) {
             var lng = imgObjs[i].lng;
             var lat = imgObjs[i].lat;
@@ -91,44 +93,49 @@
 </script>
 
 
-<script type="text/javascript">
-    var start_date_int = new Date(new Date().setYear(new Date().getFullYear() - 1)).getTime();
-    var end_date_int = new Date().getTime();
-    var start_date_str = start_date_int.toString();
-    var end_date_str = end_date_int.toString();
-    $(function () {
-        $("#slider-range").slider({
-            range: true,
-            min: start_date_int,
-            max: end_date_int,
-            /*min: 0,
-             max: 500,*/
-            values: [start_date_int, end_date_int],
-            slide: function (event, ui) {
-                getCorgis(ui.values[0], ui.values[1]);
-                $("#amount").val("" + ui.values[0] + " - " + ui.values[1]);
-            }
-        });
-
-        $("#amount").val("" + $("#slider-range").slider("values", 0) +
-                " - " + $("#slider-range").slider("values", 1));
-    });
-
-    //document.write(new Date(new Date().setYear(new Date().getFullYear() - 1)).getTime())
-</script>
 
 {% if pics|length < 1%}
 <br> No pictures yet!
 
 {% else %}
 <div id="map_canvas" style="width:750px;height:500px"></div>
-{%endif%}
+
 <p>
-    <label for="amount">Price range:</label>
+    <label for="amount">Date range:</label>
     <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;">
 </p>
 
 <div id="slider-range"></div>
+{%endif%}
+
+<script type="text/javascript">
+    $(function () {
+        $("#slider-range").slider({
+            range: true,
+            min: start_date_int,
+            max: end_date_int,
+            values: [start_date_int, end_date_int],
+            slide: function (event, ui) {
+                var start_date = new Date(ui.values[0]).toISOString();
+                var end_date = new Date(ui.values[1]).toISOString();
+                //$("#amount").val("" + ui.values[0] + " - " + ui.values[1]);
+                $("#amount").val("" + start_date + " - " + end_date);
+            },
+            stop : function(event, ui){
+                console.log('Start:' + ui.values[0]+ ' End:'+ ui.values[1]);
+                getCorgis(ui.values[0], ui.values[1]);
+            }
+        });
+
+        var start_date = new Date($("#slider-range").slider("values", 0)).toISOString();
+        var end_date = new Date($("#slider-range").slider("values", 1)).toISOString();
+
+        //$("#amount").val("" + $("#slider-range").slider("values", 0) + " - " + $("#slider-range").slider("values", 1));
+        $("#amount").val("" + start_date + " - " + end_date);
+    });
+
+    //document.write(new Date(new Date().setYear(new Date().getFullYear() - 1)).getTime())
+</script>
 
 </body>
 </html>
