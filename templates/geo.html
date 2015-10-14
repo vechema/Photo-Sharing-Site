@@ -31,13 +31,13 @@
         var latit = $(this).attr('lat').trim();
         var long = $(this).attr('lng').trim();
         //upload_date/up_date is IN MILLISECONDS accurate to teh day
-        var upload_date = new Date($(this).attr('up_date').trim().split(' ')[0]).getTime()/86400000;
+        var upload_date = new Date($(this).attr('up_date').trim().split(' ')[0]).getTime() / 86400000;
         //document.write($(this).attr('up_date'));
         var image = {imgurl: url, lat: latit, lng: long, up_date: upload_date};
         imgObjs.push(image);
     });
 
-/*     var arrayLength = imgObjs.length;
+    /*     var arrayLength = imgObjs.length;
      for (var i = 0; i < arrayLength; i++) {
      document.write('<ul>');
      document.write('<li>'+imgObjs[i].imgurl+'</li>');
@@ -51,11 +51,15 @@
 
 <script type="text/javascript">
 
-    var start_date_int = new Date(new Date().setYear(new Date().getFullYear() - 1)).getTime()/86400000;
+    var start_date_int = new Date(new Date().setYear(new Date().getFullYear() - 1)).getTime() / 86400000;
     //var start_date_int = new Date(new Date().setDate(new Date().getDate() - 2)).getTime()/86400000;
-    var end_date_int = new Date().getTime()/86400000;
+    var end_date_int = new Date().getTime() / 86400000;
 
     $(function () {
+        refresh_map(start_date_int, end_date_int);
+
+    });
+    function refresh_map(startDate, endDate) {
         $('#map_canvas').gmap({'zoom': 2, 'disableDefaultUI': true}).bind('init', function (evt, map) {
             var bounds = map.getBounds();
             var southWest = bounds.getSouthWest();
@@ -63,37 +67,60 @@
             var lngSpan = northEast.lng() - southWest.lng();
             var latSpan = northEast.lat() - southWest.lat();
 
-            getCorgis(start_date_int, end_date_int);
+            //$('#map_canvas').gmap('clearMarkers');
+            $('#map_canvas').gmap('clear', 'markers');
+            for (var i = 0; i < imgObjs.length; i++) {
+                var lng = imgObjs[i].lng;
+                var lat = imgObjs[i].lat;
+                var uploadDate = imgObjs[i].up_date;
+                var pic_img = '<img src=' + imgObjs[i].imgurl + ' height="100" width="100">';
+                //document.write(pic_img);
+                //This date comparison should just be comparing numbbers
+                if (uploadDate >= startDate && uploadDate <= endDate) {
+
+                    $('#map_canvas').gmap('addMarker', {
+                        'position': new google.maps.LatLng(lat, lng),
+                        'pic_url': pic_img,
+                    }).mouseover(function () {
+                        //$('#map_canvas').gmap('openInfoWindow', {content: pic_img}, this);
+                        $('#map_canvas').gmap('openInfoWindow', {content: this.pic_url}, this);
+                    });
+                }
+            }
+            $('#map_canvas').gmap('set', 'MarkerClusterer', new MarkerClusterer(map, $(this).gmap('get', 'markers')));
+
+            //getCorgis(start_date_int, end_date_int, map);
+            //$('#map_canvas').gmap('set', 'MarkerClusterer', new MarkerClusterer(map, $(this).gmap('get', 'markers')));
             // To call methods in MarkerClusterer simply call
             // $('#map_canvas').gmap('get', 'MarkerClusterer').callingSomeMethod();
-            $('#map_canvas').gmap('set', 'MarkerClusterer', new MarkerClusterer(map, $(this).gmap('get', 'markers')));
         });
-    });
-    function getCorgis(startDate, endDate) {
+    }
+    ;
+    function getCorgis(startDate, endDate, map) {
         //$('#map_canvas').gmap('clearMarkers');
         $('#map_canvas').gmap('clear', 'markers');
         for (var i = 0; i < imgObjs.length; i++) {
             var lng = imgObjs[i].lng;
             var lat = imgObjs[i].lat;
             var uploadDate = imgObjs[i].up_date;
-            var pic_img = '<img src='+imgObjs[i].imgurl +' height="100" width="100">';
+            var pic_img = '<img src=' + imgObjs[i].imgurl + ' height="100" width="100">';
             //document.write(pic_img);
             //This date comparison should just be comparing numbbers
             if (uploadDate >= startDate && uploadDate <= endDate) {
 
                 $('#map_canvas').gmap('addMarker', {
                     'position': new google.maps.LatLng(lat, lng),
-                    'pic_url' : pic_img,
-                }).click(function () {
+                    'pic_url': pic_img,
+                }).mouseover(function () {
                     //$('#map_canvas').gmap('openInfoWindow', {content: pic_img}, this);
                     $('#map_canvas').gmap('openInfoWindow', {content: this.pic_url}, this);
                 });
             }
         }
+        $('#map_canvas').gmap('set', 'MarkerClusterer', new MarkerClusterer(map, $(this).gmap('get', 'markers')));
     }
     ;
 </script>
-
 
 
 {% if pics|length < 1%}
@@ -118,19 +145,19 @@
             max: end_date_int,
             values: [start_date_int, end_date_int],
             slide: function (event, ui) {
-                var start_date = new Date(ui.values[0]*86400000).toLocaleDateString();
-                var end_date = new Date(ui.values[1]*86400000).toLocaleDateString();
+                var start_date = new Date(ui.values[0] * 86400000).toLocaleDateString();
+                var end_date = new Date(ui.values[1] * 86400000).toLocaleDateString();
                 //$("#amount").val("" + ui.values[0] + " - " + ui.values[1]);
                 $("#amount").val("" + start_date + " - " + end_date);
             },
-            stop : function(event, ui){
-                console.log('Start:' + ui.values[0]+ ' End:'+ ui.values[1]);
-                getCorgis(ui.values[0], ui.values[1]);
+            stop: function (event, ui) {
+                console.log('Start:' + ui.values[0] + ' End:' + ui.values[1]);
+                refresh_map(ui.values[0], ui.values[1]);
             }
         });
 
-        var start_date = new Date($("#slider-range").slider("values", 0)*86400000).toLocaleDateString();
-        var end_date = new Date($("#slider-range").slider("values", 1)*86400000).toLocaleDateString();
+        var start_date = new Date($("#slider-range").slider("values", 0) * 86400000).toLocaleDateString();
+        var end_date = new Date($("#slider-range").slider("values", 1) * 86400000).toLocaleDateString();
 
         //$("#amount").val("" + $("#slider-range").slider("values", 0) + " - " + $("#slider-range").slider("values", 1));
         $("#amount").val("" + start_date + " - " + end_date);
