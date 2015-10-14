@@ -32,6 +32,7 @@
         var long = $(this).attr('lng').trim();
         //upload_date/up_date is IN MILLISECONDS accurate to teh day
         var upload_date = new Date($(this).attr('up_date').trim().split(' ')[0]).getTime();
+        document.write($(this).attr('up_date'));
         var image = {imgurl: url, lat: latit, lng: long, up_date: upload_date};
         imgObjs.push(image);
     });
@@ -44,8 +45,8 @@
      document.write('<li>'+imgObjs[i].lng+'</li>');
      document.write('<li>'+imgObjs[i].up_date+'</li>');
 
-     document.write('</ul>');
-     }*/
+     document.write('</ul>');*/
+     }
 </script>
 
 <script type="text/javascript">
@@ -102,7 +103,7 @@
 
 <p>
     <label for="amount">Date range:</label>
-    <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;">
+    <input type="text" id="amount" readonly size="20" style="border:0; color:#f6931f; font-weight:bold;">
 </p>
 
 <div id="slider-range"></div>
@@ -116,8 +117,8 @@
             max: end_date_int,
             values: [start_date_int, end_date_int],
             slide: function (event, ui) {
-                var start_date = new Date(ui.values[0]).toISOString();
-                var end_date = new Date(ui.values[1]).toISOString();
+                var start_date = new Date(ui.values[0]).toLocaleDateString();
+                var end_date = new Date(ui.values[1]).toLocaleDateString();
                 //$("#amount").val("" + ui.values[0] + " - " + ui.values[1]);
                 $("#amount").val("" + start_date + " - " + end_date);
             },
@@ -127,8 +128,8 @@
             }
         });
 
-        var start_date = new Date($("#slider-range").slider("values", 0)).toISOString();
-        var end_date = new Date($("#slider-range").slider("values", 1)).toISOString();
+        var start_date = new Date($("#slider-range").slider("values", 0)).toLocaleDateString();
+        var end_date = new Date($("#slider-range").slider("values", 1)).toLocaleDateString();
 
         //$("#amount").val("" + $("#slider-range").slider("values", 0) + " - " + $("#slider-range").slider("values", 1));
         $("#amount").val("" + start_date + " - " + end_date);
