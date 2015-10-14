@@ -1,16 +1,70 @@
 <!DOCTYPE html>
 {% autoescape true %}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://bootswatch.com/readable/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+{#{% include 'templates/header.html' %}#}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
 </head>
-<body>
+<body style="background-color:lightgrey">
     <!--{% include 'templates/header.html' %}-->
+    <center>
     <h1>Welcome to Connexus!</h1>
-    <br>Share the world!</br>
+        <br>
+
+        <h4>
+<div class="row">
+  <div class="col-sm-2">
+      <div class="bg-success">
+        &nbsp
+      </div>
+  </div>
+  <div class="col-sm-2">
+      <div class="bg-warning">
+        &nbsp
+      </div>
+  </div>
+  <div class="col-sm-2">
+      <div class="bg-info">
+      &nbsp
+      </div>
+  </div>
+  <div class="col-sm-2">
+      <div class="bg-danger">
+      &nbsp
+          </div>
+  </div>
+  <div class="col-sm-2">
+      <div class="bg-success">
+      &nbsp
+      </div>
+  </div>
+  <div class="col-sm-2">
+      <div class="bg-warning">
+      &nbsp
+      </div>
+  </div>
+</div>
+</h4>
+
+        <h3>
+        <br>Share the world!</br>
     <br>{{greeting}}</br>
+        <br>
     <a href="{{ url|safe }}">{{ url_linktext }}</a>
+            </h3>
+
+        <br>
+        <br>
+        <br>
+
+        <a href="/viewall">Continue to site without logging in.</a>
+    </center>
 
 </body>
 </html>
