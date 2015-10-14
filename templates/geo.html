@@ -81,7 +81,7 @@
                     $('#map_canvas').gmap('addMarker', {
                         'position': new google.maps.LatLng(lat, lng),
                         'pic_url': pic_img,
-                    }).click(function () {
+                    }).mouseover(function () {
                         //$('#map_canvas').gmap('openInfoWindow', {content: pic_img}, this);
                         $('#map_canvas').gmap('openInfoWindow', {content: this.pic_url}, this);
                     });
@@ -111,7 +111,7 @@
                 $('#map_canvas').gmap('addMarker', {
                     'position': new google.maps.LatLng(lat, lng),
                     'pic_url': pic_img,
-                }).click(function () {
+                }).mouseover(function () {
                     //$('#map_canvas').gmap('openInfoWindow', {content: pic_img}, this);
                     $('#map_canvas').gmap('openInfoWindow', {content: this.pic_url}, this);
                 });
