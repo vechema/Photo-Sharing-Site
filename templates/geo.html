@@ -31,7 +31,7 @@
         var latit = $(this).attr('lat').trim();
         var long = $(this).attr('lng').trim();
         //upload_date/up_date is IN MILLISECONDS accurate to teh day
-        var upload_date = new Date($(this).attr('up_date').trim().split(' ')[0]).getTime();
+        var upload_date = new Date($(this).attr('up_date').trim().split(' ')[0]).getTime()/86400000;
         //document.write($(this).attr('up_date'));
         var image = {imgurl: url, lat: latit, lng: long, up_date: upload_date};
         imgObjs.push(image);
@@ -51,9 +51,9 @@
 
 <script type="text/javascript">
 
-    //var start_date_int = new Date(new Date().setYear(new Date().getFullYear() - 1)).getTime();
-    var start_date_int = new Date(new Date().setDate(new Date().getDate() - 2)).getTime();
-    var end_date_int = new Date().getTime();
+    var start_date_int = new Date(new Date().setYear(new Date().getFullYear() - 1)).getTime()/86400000;
+    //var start_date_int = new Date(new Date().setDate(new Date().getDate() - 2)).getTime()/86400000;
+    var end_date_int = new Date().getTime()/86400000;
 
     $(function () {
         $('#map_canvas').gmap({'zoom': 2, 'disableDefaultUI': true}).bind('init', function (evt, map) {
@@ -117,8 +117,8 @@
             max: end_date_int,
             values: [start_date_int, end_date_int],
             slide: function (event, ui) {
-                var start_date = new Date(ui.values[0]).toLocaleDateString();
-                var end_date = new Date(ui.values[1]).toLocaleDateString();
+                var start_date = new Date(ui.values[0]*86400000).toLocaleDateString();
+                var end_date = new Date(ui.values[1]*86400000).toLocaleDateString();
                 //$("#amount").val("" + ui.values[0] + " - " + ui.values[1]);
                 $("#amount").val("" + start_date + " - " + end_date);
             },
@@ -128,8 +128,8 @@
             }
         });
 
-        var start_date = new Date($("#slider-range").slider("values", 0)).toLocaleDateString();
-        var end_date = new Date($("#slider-range").slider("values", 1)).toLocaleDateString();
+        var start_date = new Date($("#slider-range").slider("values", 0)*86400000).toLocaleDateString();
+        var end_date = new Date($("#slider-range").slider("values", 1)*86400000).toLocaleDateString();
 
         //$("#amount").val("" + $("#slider-range").slider("values", 0) + " - " + $("#slider-range").slider("values", 1));
         $("#amount").val("" + start_date + " - " + end_date);
