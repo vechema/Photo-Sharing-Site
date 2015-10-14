@@ -78,6 +78,7 @@
             var latSpan = northEast.lat() - southWest.lat();
 
             //$('#map_canvas').gmap('clearMarkers');
+            $('#map_canvas').gmap('set', 'MarkerClusterer', new MarkerClusterer(map, $(this).gmap('get', 'markers')));
             getCorgis(startDate, endDate, map);
             console.log("Made map");
             //getCorgis(start_date_int, end_date_int, map);
@@ -94,6 +95,7 @@
         console.log("In getCorgis");
         console.log(my_map);
         $('#map_canvas').gmap('clear', 'markers');
+        $('#map_canvas').gmap('get', 'MarkerClusterer').clearMarkers();
  //       $('#map_canvas').gmap({'callback': function (map) {
                 // The keyword 'this' refers to the plugin object itself. Which means you can execute shorthand code; e.g. this.addMarker({...});
                 // do something
@@ -120,7 +122,7 @@
                 });
             }
         }
-        //$('#map_canvas').gmap('set', 'MarkerClusterer', new MarkerClusterer($('#map_canvas').gmap('get', 'map'), $('#map_canvas').gmap('get', 'markers')));
+        $('#map_canvas').gmap('set', 'MarkerClusterer', new MarkerClusterer($('#map_canvas').gmap('get', 'map'), $('#map_canvas').gmap('get', 'markers')));
 
         //this.set('MarkerClusterer', new MarkerClusterer(this.get('map'), this.get('markers')));
 
