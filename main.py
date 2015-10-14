@@ -62,6 +62,21 @@ class MyUser(ndb.Model):
     email = ndb.StringProperty()
     update_rate = ndb.StringProperty()
 
+class LoginCheckHandler(webapp2.RequestHandler):
+    def get(self):
+        user = users.get_current_user()
+        if user == None:
+            ans = "Login"
+        else:
+            ans = "Logout"
+
+        ansdict = {}
+        ansdict[0] = ans
+        self.response.write(json.dumps(ansdict))
+
+
+
+
 
 class SearchRequestHandler(webapp2.RequestHandler):
     def get(self):
@@ -1102,6 +1117,7 @@ class SearchResultsHandler(webapp2.RequestHandler):
 # >>>>>>> origin/master
 
 app = webapp2.WSGIApplication([
+    ('/logincheck', LoginCheckHandler),
     ('/searchrequest', SearchRequestHandler),
     ('/learning', LearningHandler),
     # ('/example', ExampleHandler),
