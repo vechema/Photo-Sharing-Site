@@ -19,17 +19,14 @@
 <br>
      &nbsp click on an image to view stream
 <br>
-    <table>
-        <tr>
+
+        <div class = "row">
     {% for stream in streams %}
-        {% if loop.index0 is divisibleby 5 %}
-            </tr>
-            <tr>
-        {% endif %}
-        <td><a href="/view?stream={{stream.name_safe}}">
+
+        <div class = "col-sm-2"><a href="/view?stream={{stream.name_safe}}">
             <img src="{{stream.cover_url}}" style="width:128px;height:128px;">
         </a>
-        <br>{{stream.name}}</td>
+        <br>{{stream.name}}</div>
         <!--<ul id="categories">-->
             <!--<li>subscribers-->
                 <!--<ul id="emaillist">-->
@@ -54,7 +51,7 @@
             <!--</li>-->
         <!--</ul>-->
     {% endfor %}
-        </tr>
+        </div>
     </table>
 </body>
 </html>
