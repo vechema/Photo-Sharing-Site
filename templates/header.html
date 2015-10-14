@@ -37,7 +37,7 @@
   </div>
   <div class="col-sm-2">
       <div class="bg-success">
-      <a href="/login">Login/Logout</a>
+      <a href="/login" id = "login"></a>
       </div>
   </div>
   <div class="col-sm-2"></div>
@@ -60,11 +60,26 @@
 {##}
 {#</div>#}
 
+
+
   <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
   <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
   <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 {#  {% include 'templates/header.html' %}#}
 {#  <h2>Search</h2>#}
+
+<script>
+
+    $(document).ready(function() {
+        console.log("debug");
+        $.getJSON( "logincheck", function( data, status, xhr ) {
+            $.each( data, function( key, val ) {
+                console.log("" + val);
+                $("#login").append("" + val);
+            });
+        });
+    });
+</script>
 
 
 {#  <meta id="my-data" data-name="{{available2}}">#}
@@ -82,7 +97,7 @@
         }
 
         $.getJSON( "searchrequest", request, function( data, status, xhr ) {
-
+            console.log('debug3');
             cache[ term ] = data;
           response( data );
         });

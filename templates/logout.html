@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+{% autoescape true %}
+{% include 'templates/header.html' %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Logout</title>
+</head>
+<body>
+    <center>
+    <!--{% include 'templates/header.html' %}-->
+    <h3><br>{{greeting}}</br></h3>
+
+    <h3>
+    <a href="{{ url|safe }}">{{ url_linktext }}</a>
+    </h3>
+    </center>
+</body>
+</html>
+{% endautoescape %}

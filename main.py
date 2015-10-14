@@ -62,6 +62,21 @@ class MyUser(ndb.Model):
     email = ndb.StringProperty()
     update_rate = ndb.StringProperty()
 
+class LoginCheckHandler(webapp2.RequestHandler):
+    def get(self):
+        user = users.get_current_user()
+        if user == None:
+            ans = "Login"
+        else:
+            ans = "Logout"
+
+        ansdict = {}
+        ansdict[0] = ans
+        self.response.write(json.dumps(ansdict))
+
+
+
+
 
 class SearchRequestHandler(webapp2.RequestHandler):
     def get(self):
@@ -689,22 +704,34 @@ class LoginHandler(webapp2.RequestHandler):
             name = user.nickname()
             url = users.create_logout_url('/login')
             url_linktext = "Logout"
+            greeting = "Are you sure you want to log out?"
+            template_values = {
+                'user': user,
+                'greeting': greeting,
+                'url' : url,
+                'url_linktext' : url_linktext,
+            }
+
+            template = JINJA_ENVIRONMENT.get_template('templates/logout.html')
+            self.response.write(template.render(template_values))
+
         else:
             name = "stranger"
             url = users.create_login_url('/')
             url_linktext = "Login"
+            greeting = "Log in to get the most out of your experience."
 
-        greeting = "Howdy, " + name
 
-        template_values = {
-            'user': user,
-            'greeting': greeting,
-            'url' : url,
-            'url_linktext' : url_linktext,
-        }
 
-        template = JINJA_ENVIRONMENT.get_template('templates/login.html')
-        self.response.write(template.render(template_values))
+            template_values = {
+                'user': user,
+                'greeting': greeting,
+                'url' : url,
+                'url_linktext' : url_linktext,
+            }
+
+            template = JINJA_ENVIRONMENT.get_template('templates/login.html')
+            self.response.write(template.render(template_values))
 
 
 class PurgeHandler(webapp2.RequestHandler):
@@ -1102,6 +1129,7 @@ class SearchResultsHandler(webapp2.RequestHandler):
 # >>>>>>> origin/master
 
 app = webapp2.WSGIApplication([
+    ('/logincheck', LoginCheckHandler),
     ('/searchrequest', SearchRequestHandler),
     ('/learning', LearningHandler),
     # ('/example', ExampleHandler),
