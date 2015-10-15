@@ -36,6 +36,13 @@
     {% include 'templates/header.html' %}
     <h2>Welcome {{name}}</h2>
     <form action="/delete" method="POST" >
+
+    {% if current_user.streams_own |length == 0 %}
+        <h4>Streams I own</h4>
+        <br>
+        You haven't created any streams yet. <a href="/create">Create one now!</a>
+    {% else %}
+
     <br><table class="table table-hover"><h4>Streams I own</h4>
         <thead>
         <tr>
@@ -58,6 +65,16 @@
     </table>
     <input type="submit" value="Delete" name="delete" />
     </form>
+    {% endif %}
+
+    <br>
+    <br>
+
+    {% if current_user.streams_subscribe |length == 0 %}
+        <h4>Streams I subscribe to</h4>
+        <br>
+        You aren't subscribed to any streams yet! <a href="/viewall">Find streams to subscribe to!</a>
+    {% else %}
 
     <form action="/unsubscribe" method="POST" >
     <br><table class="table table-hover"><h4>Streams I subscribe to</h4>
@@ -68,6 +85,9 @@
             <th>Views</th>
             <th>Unsubscribe</th>
         </thead>
+
+
+
     {% for key in current_user.streams_subscribe %}
         <tr>
             <td><a href="/view?stream={{key.get().name}}">{{key.get().name}}</a></td>
@@ -82,5 +102,6 @@
     </table>
     <input type="submit" value="Unsubscribe" name="unsubscribe" />
     </form>
+{% endif %}
 </body>
 </html>
