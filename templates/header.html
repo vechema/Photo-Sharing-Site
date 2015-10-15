@@ -85,8 +85,9 @@
 {#  <meta id="my-data" data-name="{{available2}}">#}
 
   <script>
+      var cache = {};
       $(function() {
-    var cache = {};
+
     $( "#tags" ).autocomplete({
       minLength: 1,
       source: function( request, response ) {
@@ -130,9 +131,11 @@ function loadDoc() {
         success: function (serverResp) {          // on ajax success
             if (serverResp.code == '200') {
                 console.log('cache updated!');
+                cache = {};
             }
             else {
-                console.log('cache updated?');
+                console.log('cache updated!');
+                cache = {};
             }
         },
         error: function (serverResp) {            // on ajax failure
