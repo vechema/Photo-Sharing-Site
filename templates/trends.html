@@ -8,16 +8,23 @@
     {% include 'templates/header.html' %}
     <h2>Top 3 Trending Streams</h2>
 
+    <div class = "row">
+    <div class = "col-sm-3">
     <h3>Current Leaders</h3>
+    </div>
+    <div class = "col-sm-3 col-sm-offset-6">
+    <h3>Email Trending Report</h3>
+    </div>
+    </div>
 
 
-    <table>
-        <tr>
+
+        <div class = "row">
     {% for stream in streams %}
-        <td><a href="/view?stream={{stream.name_safe}}">
+        <div class = "col-sm-3"><a href="/view?stream={{stream.name_safe}}">
             <img src="{{stream.cover_url}}" style="width:128px;height:128px;">
         </a>
-        <br>{{stream.name}}<br>{{stream.count}} views in past hour</td>
+        <br>{{stream.name}}<br>{{stream.count}} views in past hour</div>
         <!--<ul id="categories">-->
             <!--<li>subscribers-->
                 <!--<ul id="emaillist">-->
@@ -42,8 +49,22 @@
             <!--</li>-->
         <!--</ul>-->
     {% endfor %}
-        <td>
-            <h3>Email Trending Report</h3>
+
+        {% if streams|length == 2 %}
+            <div class = "col-sm-3 col-sm-offset-3">
+        {% endif %}
+
+        {% if streams|length == 1 %}
+            <div class = "col-sm-3 col-sm-offset-6">
+        {% endif %}
+
+        {% if streams|length == 3 %}
+            <div class = "col-sm-3">
+        {% endif %}
+
+
+
+
             {% if current_rate == 'N/A'%}
                 <br> Please <a href="/login">login</a> to get a report
             {% else %}
@@ -60,8 +81,8 @@
                 <input type="submit" value="Update Rate">
             </form>
             {% endif %}
-        </td>
-        </tr>
+        </div>
+        </div>
     </table>
 </body>
 </html>
