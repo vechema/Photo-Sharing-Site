@@ -1095,17 +1095,23 @@ class SearchResultsHandler(webapp2.RequestHandler):
         #
         # self.response.write(template.render(template_values))
 
+        if self.request.get('thequery') == '':
+            allstreams = []
+            result_count = 0
+            
+        else:
 
-        query_list = self.request.get('thequery').replace(',', '').split(" ")
-        #allstreams = []
-        stream_query = Stream.query()
-        for eachquery in query_list:
-            stream_query = stream_query.filter(ndb.OR(Stream.name == eachquery,
-                                                Stream.tags == eachquery))
-            #allstreams = allstreams + streams
+            query_list = self.request.get('thequery').replace(',', '').split(" ")
+            #allstreams = []
+            stream_query = Stream.query()
+            for eachquery in query_list:
+                if eachquery != '':
+                    stream_query = stream_query.filter(ndb.OR(Stream.name == eachquery,
+                                                        Stream.tags == eachquery))
+                #allstreams = allstreams + streams
 
-        allstreams = stream_query.order(-Stream.creation_date).fetch(5)
-        result_count = len(allstreams)
+            allstreams = stream_query.order(-Stream.creation_date).fetch(5)
+            result_count = len(allstreams)
         template_values ={
             'streams' : allstreams,
             'count' : result_count,
